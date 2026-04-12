@@ -1,0 +1,33 @@
+There are 5 roles
+STUDENT
+SPC ( STUDENT PLACEMENT COORDINATOR )
+FPC ( FACULTY PLACEMENT COORDINATOR )
+ADMIN ( COLLEGE ADMIN / CHIEF PLACEMENT OFFICER )
+PARENT
+SUPER_USER
+
+  
+I now wanted to build the onboarding APIs.
+ADMIN and SUPER_USER will have hardcoded login credentials
+STUDENT will onboard themselves.
+ADMIN/SUPER_USER can create login credentials for FPC
+
+ADMIN / SUPER_USER can mark any student as SPC
+FPC can mark a student from their department as SPC
+
+ADMIN / SUPER_USER can access any student from any department
+FPC/SPC can (read) access only students from their department
+FPC/SPC can verify the data of students from their department
+ADMIN/SUPER_USER can verify the data of any student from any department
+
+PARENTS PROFILE IS DUMMY FOR NOW 
+
+WE WILL ONBOARD A STUDENT JUST BY THEIR EMAIL, PASSWORD
+AFTER ONBOARDING THEY MUST VERIFY THEIR EMAIL TO ACCESS THE PORTAL 
+
+HAVE AN EYE OVER ACCESS RULES AND ROLE BASED ACCESS CONTROL FROM BEGINNING
+IMPLEMENT REFRESH TOKEN AND ACCESS TOKENS
+
+The excel sheet called "SJBIT-DESIGN" will have all the database schema, write read access
+
+Implement FORGOT PASSWORD, RESET PASSWORD, CHANGE PASSWORD

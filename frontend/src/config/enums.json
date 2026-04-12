@@ -1,0 +1,73 @@
+{
+  "DEPARTMENT_BRANCH": [
+    { "title": "Computer Science and Engineering", "value": "CSE" },
+    { "title": "Information Science and Engineering", "value": "ISE" },
+    { "title": "Electronics and Communication Engineering", "value": "ECE" },
+    { "title": "Electrical and Electronics Engineering", "value": "EEE" },
+    { "title": "Mechanical Engineering", "value": "MECH" },
+    { "title": "Civil Engineering", "value": "CIVIL" },
+    { "title": "Computer Science and Engineering (Data Science)", "value": "CSE_DS" },
+    { "title": "Master of Computer Applications", "value": "MCA" },
+    { "title": "Master of Business Administration", "value": "MBA" }
+  ],
+  "PURSUING_DEGREE": [
+    { "title": "Bachelor of Engineering (BE)", "value": "BE" },
+    { "title": "Master of Technology (MTech)", "value": "MTECH" },
+    { "title": "Master of Business Administration (MBA)", "value": "MBA" },
+    { "title": "Master of Computer Applications (MCA)", "value": "MCA" }
+  ],
+  "GENDER": [
+    { "title": "Male", "value": "MALE" },
+    { "title": "Female", "value": "FEMALE" },
+    { "title": "Others", "value": "OTHERS" }
+  ],
+  "EDU_LEVEL": [
+    { "title": "Undergraduate (UG)", "value": "UG" },
+    { "title": "Postgraduate (PG)", "value": "PG" }
+  ],
+  "ADMISSION_MODE": [
+    { "title": "CET", "value": "CET" },
+    { "title": "COMED-K", "value": "COMED-K" },
+    { "title": "PGCET", "value": "PGCET" },
+    { "title": "Diploma CET", "value": "DIPLOMA_CET" },
+    { "title": "Management Quota", "value": "MANAGEMENT" },
+    { "title": "Others", "value": "OTHERS" }
+  ],
+  "UG_DEGREE_TYPE": [
+    { "title": "Bachelor of Engineering (BE)", "value": "BE" },
+    { "title": "Bachelor of Computer Applications (BCA)", "value": "BCA" },
+    { "title": "Bachelor of Science (BSc)", "value": "BSC" },
+    { "title": "Bachelor of Commerce (BCom)", "value": "BCOM" },
+    { "title": "Bachelor of Arts (BA)", "value": "BA" },
+    { "title": "Bachelor of Business Administration (BBA)", "value": "BBA" },
+    { "title": "Bachelor of Business Management (BBM)", "value": "BBM" }
+  ],
+  "PG_SPEC_TYPE": [
+    { "title": "Marketing and HR", "value": "MARKETING_AND_HR" },
+    { "title": "Marketing and Finance", "value": "MARKETING_AND_FINANCE" },
+    { "title": "Core Finance", "value": "CORE_FINANCE" },
+    { "title": "Business Analytics", "value": "BUSINESS_ANALYTICS" },
+    { "title": "Marketing", "value": "MARKETING" },
+    { "title": "Human Resources", "value": "HR" },
+    { "title": "Computers MCA", "value": "COMPUTERS_MCA" },
+    { "title": "Marketing and Business Analytics", "value": "MARKETING_AND_BUSINESS_ANALYTICS" },
+    { "title": "HR and Business Analytics", "value": "HR_AND_BUSINESS_ANALYTICS" },
+    { "title": "Finance and Business Analytics", "value": "FINANCE_AND_BUSINESS_ANALYTICS" },
+    { "title": "Digital Marketing", "value": "DIGITAL_MARKETING" },
+    { "title": "Finance and HR", "value": "FINANCE_HR" },
+    { "title": "Marketing and Business Analytics (Alternative)", "value": "MARKETING_BUSINESS_ANALYTICS" },
+    { "title": "HR and Business Analytics (Alternative)", "value": "HR_BUSINESS_ANALYTICS" },
+    { "title": "Finance and Business Analytics (Alternative)", "value": "FINANCE_BUSINESS_ANALYTICS" }
+  ],
+  "DOCUMENT_TYPE": [
+    { "title": "Resume", "value": "RESUME" },
+    { "title": "SSLC / 10th Marks Card", "value": "MARKS_CARD_10TH" },
+    { "title": "PUC / 12th Marks Card", "value": "MARKS_CARD_12TH" },
+    { "title": "UG Marks Card (All Semesters)", "value": "UG_MARKS_CARD_ALL_SEM" },
+    { "title": "PG Marks Card (All Semesters)", "value": "PG_MARKS_CARD_ALL_SEM" },
+    { "title": "PAN Card", "value": "PAN_CARD" },
+    { "title": "Aadhaar Card", "value": "AADHAAR_CARD" },
+    { "title": "Passport Size Photo", "value": "PASSPORT_SIZE_PHOTO" },
+    { "title": "College ID Card", "value": "COLLEGE_ID_CARD" }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+    "tabs": [
+      {
+        "id": "Personal",
+        "label": "Personal",
+        "subTabs": [
+          {
+            "id": "core_info",
+            "label": "Core Info",
+            "fetchEndpoint": "/student/core-info",
+            "saveEndpoint": "/student/core-info",
+            "fields": [
+              { "name": "usn", "label": "USN", "type": "text", "required": true, "maxLength": 20 },
+              { "name": "full_name", "label": "Full Name", "type": "text", "required": true, "maxLength": 255 },
+              { "name": "first_name", "label": "First Name", "type": "text", "required": true, "maxLength": 100 },
+              { "name": "middle_name", "label": "Middle Name", "type": "text", "required": false, "maxLength": 100 },
+              { "name": "last_name", "label": "Last Name", "type": "text", "required": true, "maxLength": 100 },
+              { "name": "department", "label": "Department / Branch", "type": "select", "enumKey": "DEPARTMENT_BRANCH", "required": true },
+              { "name": "pursuing_degree", "label": "Pursuing Degree", "type": "select", "enumKey": "PURSUING_DEGREE", "required": true },
+              { "name": "mobile_number", "label": "Mobile Number", "type": "tel", "required": true, "maxLength": 15 },
+              { "name": "whatsapp_number", "label": "WhatsApp Number", "type": "tel", "required": true, "maxLength": 15 },
+              { "name": "gender", "label": "Gender", "type": "select", "enumKey": "GENDER", "required": true },
+              { "name": "dob", "label": "Date of Birth", "type": "date", "required": true },
+              { "name": "ug_pg", "label": "Education Level", "type": "select", "enumKey": "EDU_LEVEL", "required": true },
+              { "name": "mentor_id", "label": "Mentor ID", "type": "text", "required": false }
+            ]
+          },
+          {
+            "id": "personal_info",
+            "label": "Personal Info",
+            "fetchEndpoint": "/student/personal-info",
+            "saveEndpoint": "/student/personal-info",
+            "fields": [
+              { "name": "father_name", "label": "Father's Name", "type": "text", "required": true },
+              { "name": "father_mobile_number", "label": "Father's Mobile Number", "type": "tel", "required": true },
+              { "name": "father_occupation", "label": "Father's Occupation", "type": "text", "required": true },
+              { "name": "mother_name", "label": "Mother's Name", "type": "text", "required": true },
+              { "name": "mother_mobile_number", "label": "Mother's Mobile Number", "type": "tel", "required": true },
+              { "name": "mother_occupation", "label": "Mother's Occupation", "type": "text", "required": true },
+              { "name": "communication_address", "label": "Communication Address", "type": "textarea", "required": true },
+              { "name": "permanent_address", "label": "Permanent Address", "type": "textarea", "required": true },
+              { "name": "native_place", "label": "Native Place", "type": "text", "required": true },
+              { "name": "state", "label": "State", "type": "text", "required": true },
+              { "name": "pin_code", "label": "PIN Code", "type": "text", "required": true }
+            ]
+          },
+          {
+            "id": "official_info",
+            "label": "Official Info",
+            "fetchEndpoint": "/student/official-info",
+            "saveEndpoint": "/student/official-info",
+            "fields": [
+              { "name": "pan_number", "label": "PAN Number", "type": "text", "required": false },
+              { "name": "aadhar_number", "label": "Aadhar Number", "type": "text", "required": true }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Academics",
+        "label": "Academics",
+        "subTabs": [
+          {
+            "id": "schooling",
+            "label": "Schooling Details",
+            "fetchEndpoint": "/student/academics/schooling",
+            "saveEndpoint": "/student/academics/schooling",
+            "fields": [
+              { "name": "sslc_perc", "label": "SSLC Percentage", "type": "number", "required": true },
+              { "name": "sslc_meta.year_of_passing", "label": "SSLC Year of Passing", "type": "number", "required": true },
+              { "name": "sslc_meta.board", "label": "SSLC Board", "type": "text", "required": true },
+              { "name": "puc_perc", "label": "PUC Percentage", "type": "number", "required": true },
+              { "name": "puc_meta.year_of_passing", "label": "PUC Year of Passing", "type": "number", "required": true },
+              { "name": "puc_meta.board", "label": "PUC Board", "type": "text", "required": true },
+              { "name": "admission_mode", "label": "Admission Mode", "type": "select", "enumKey": "ADMISSION_MODE", "required": true },
+              { "name": "competitive_ranking", "label": "Competitive Ranking", "type": "text", "required": false }
+            ]
+          },
+          {
+            "id": "current_scores",
+            "label": "Current Scores",
+            "fetchEndpoint": "/student/academics/current-scores",
+            "saveEndpoint": "/student/academics/current-scores",
+            "fields": [
+             
+              { "name": "current_cgpa", "label": "Current CGPA", "type": "number", "required": true },
+              { "name": "active_backlogs", "label": "Active Backlogs", "type": "number", "required": true },
+              { "name": "backlog_history", "label": "Backlog History", "type": "select", "options": [{"title": "Yes", "value": "true"}, {"title": "No", "value": "false"}], "required": true },
+              { "name": "gap_info.has_gap", "label": "Education Gap", "type": "select", "options": [{"title": "Yes", "value": "true"}, {"title": "No", "value": "false"}], "required": true },
+              { "name": "gap_info.gap_years", "label": "Gap Years", "type": "number", "required": false },
+               { "name": "sgpas.0", "label": "Semester 1 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.1", "label": "Semester 2 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.2", "label": "Semester 3 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.3", "label": "Semester 4 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.4", "label": "Semester 5 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.5", "label": "Semester 6 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.6", "label": "Semester 7 SGPA", "type": "number", "required": false },
+              { "name": "sgpas.7", "label": "Semester 8 SGPA", "type": "number", "required": false }
+            ]
+          },
+          {
+            "id": "previous_edu",
+            "label": "Previous Education",
+            "dependsOn": {
+               "context": "core_info",
+               "endpoint": "/student/core-info",
+               "field": "ug_pg",
+               "value": "PG"
+            },
+            "fetchEndpoint": "/student/academics/previous-edu",
+            "saveEndpoint": "/student/academics/previous-edu",
+            "fields": [
+              { "name": "ug_percentage", "label": "UG Percentage", "type": "number", "required": true },
+              { "name": "pg_specialization", "label": "PG Specialization", "type": "select", "enumKey": "PG_SPEC_TYPE", "required": true },
+              { "name": "previous_edu_details.ug_university", "label": "UG University", "type": "text", "required": false },
+              { "name": "previous_edu_details.year_of_passing", "label": "UG Year of Passing", "type": "number", "required": false }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Documents",
+        "label": "Documents",
+        "subTabOrientation": "vertical",
+        "subTabs": [
+          {
+            "id": "resume",
+            "label": "Resume",
+            "fetchEndpoint": "/student/document/resume",
+            "saveEndpoint": "/student/document/resume",
+            "fields": [{ "name": "document_url", "label": "Resume URL (Google Drive/Public Link)", "type": "url", "required": true }]
+          },
+          {
+            "id": "marks_card_10th",
+            "label": "10th Marks Card",
+            "fetchEndpoint": "/student/document/marks_card_10th",
+            "saveEndpoint": "/student/document/marks_card_10th",
+            "fields": [{ "name": "document_url", "label": "10th Marks Card URL", "type": "url", "required": true }]
+          },
+          {
+            "id": "marks_card_12th",
+            "label": "12th Marks Card",
+            "fetchEndpoint": "/student/document/marks_card_12th",
+            "saveEndpoint": "/student/document/marks_card_12th",
+            "fields": [{ "name": "document_url", "label": "12th Marks Card URL", "type": "url", "required": true }]
+          },
+          {
+            "id": "ug_marks_card",
+            "label": "UG Marks Cards (All Sem)",
+            "fetchEndpoint": "/student/document/ug_marks_card",
+            "saveEndpoint": "/student/document/ug_marks_card",
+            "fields": [{ "name": "document_url", "label": "UG Marks Cards URL", "type": "url", "required": false }]
+          },
+          {
+            "id": "pg_marks_card",
+            "label": "PG Marks Cards (All Sem)",
+            "fetchEndpoint": "/student/document/pg_marks_card",
+            "saveEndpoint": "/student/document/pg_marks_card",
+            "fields": [{ "name": "document_url", "label": "PG Marks Cards URL", "type": "url", "required": false }]
+          },
+          {
+            "id": "pan_card",
+            "label": "PAN Card",
+            "fetchEndpoint": "/student/document/pan_card",
+            "saveEndpoint": "/student/document/pan_card",
+            "fields": [{ "name": "document_url", "label": "PAN Card URL", "type": "url", "required": false }]
+          },
+          {
+            "id": "aadhaar_card",
+            "label": "Aadhaar Card",
+            "fetchEndpoint": "/student/document/aadhaar_card",
+            "saveEndpoint": "/student/document/aadhaar_card",
+            "fields": [{ "name": "document_url", "label": "Aadhaar Card URL", "type": "url", "required": true }]
+          },
+          {
+            "id": "passport_photo",
+            "label": "Passport Photo",
+            "fetchEndpoint": "/student/document/passport_photo",
+            "saveEndpoint": "/student/document/passport_photo",
+            "fields": [{ "name": "document_url", "label": "Passport Size Photo URL", "type": "url", "required": true }]
+          },
+          {
+            "id": "college_id",
+            "label": "College ID",
+            "fetchEndpoint": "/student/document/college_id",
+            "saveEndpoint": "/student/document/college_id",
+            "fields": [{ "name": "document_url", "label": "College ID Card URL", "type": "url", "required": true }]
+          }
+        ]
+      },
+      {
+        "id": "Offers",
+        "label": "Offers",
+        "subTabOrientation": "vertical",
+        "dynamicSubTabs": {
+           "fetchListEndpoint": "/student/offers",
+           "createEndpoint": "/student/offers/new",
+           "template": {
+              "labelPrefix": "",
+              "fetchEndpoint": "/student/offers/:id",
+              "saveEndpoint": "/student/offers/:id",
+              "fields": [
+                 { "name": "company_name", "label": "Company Name", "type": "text", "required": true },
+                 { "name": "salary_lpa", "label": "Salary (LPA)", "type": "number", "required": true },
+                 { "name": "offer_letter_url", "label": "Offer Letter Link", "type": "url", "required": true },
+                 { "name": "is_accepted", "label": "Accepted By You?", "type": "select", "options": [{"title":"Yes","value":"true"},{"title":"No","value":"false"}], "required": true }
+              ]
+           }
+        },
+        "subTabs": []
+      }
+    ]
+  }

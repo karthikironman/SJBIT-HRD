@@ -1,3 +1,6 @@
 # Dependencies
-**/node_modules/
-**/dist/
+frontend/node_modules/
+NEW-BACKEND/node_modules/
+frontend/dist/
+frontend/.env
+NEW-BACKEND/.env

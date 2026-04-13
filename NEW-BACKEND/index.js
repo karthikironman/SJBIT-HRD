@@ -5,6 +5,7 @@ import pool from './src/config/db.js';
 import errorHandling from './src/middlewares/errorHandler.js';
 import userRoutes from './src/routes/userRoutes.js';
 import authRoutes from './src/routes/authRoutes.js';
+import adminRoutes from './src/routes/adminRoutes.js';
 import createUserTable from './src/data/createUserTable.js';
 
 dotenv.config();
@@ -22,6 +23,7 @@ import studentRoutes from './src/routes/studentRoutes.js';
 app.use("/api/auth", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/admin", adminRoutes);
 
 //Error handling middleware
 app.use(errorHandling)

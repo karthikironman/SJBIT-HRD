@@ -1,9 +1,5 @@
 import React from 'react';
-
-const TABS = [
-  { id: 'all-users',  label: 'All Users',  icon: '👥' },
-  { id: 'approvals',  label: 'Approvals',  icon: '✅' },
-];
+import adminSidebarTabs from '../config/adminSidebarConfig';
 
 const AdminSidebar = ({ activeTabId, onTabSelect }) => {
   return (
@@ -26,7 +22,7 @@ const AdminSidebar = ({ activeTabId, onTabSelect }) => {
 
       <nav style={{ flex: 1, padding: '1rem 0' }}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {TABS.map(tab => (
+          {adminSidebarTabs.map(tab => (
             <li key={tab.id}>
               <button
                 onClick={() => onTabSelect(tab.id)}

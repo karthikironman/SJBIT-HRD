@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import apiClient from '../api/apiClient';
+import apiClient from '../../api/apiClient';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -12,12 +12,7 @@ const Register = () => {
     e.preventDefault();
     try {
       setError(null);
-      await apiClient.post('/auth/register', {
-        email,
-        password
-      });
-
-      // On successful registration, redirect to login
+      await apiClient.post('/auth/register', { email, password });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Try again.');
@@ -36,23 +31,23 @@ const Register = () => {
       <form onSubmit={handleRegister}>
         <div className="form-group">
           <label>Email Address</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder={`example@${import.meta.env.VITE_BRAND_DOMAIN || 'example.edu'}`}
-            required 
+            required
           />
         </div>
-        
+
         <div className="form-group">
           <label>Password</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Create a password (min 6 chars)"
-            required 
+            required
           />
         </div>
 

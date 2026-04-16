@@ -33,6 +33,7 @@ const Sidebar = ({ tabs, activeTabId, onTabSelect, subTabStatuses = {}, contextD
     if (hasPending) return 'PENDING';
     return 'APPROVED';
   };
+
   return (
     <div style={{
       width: '250px',
@@ -41,7 +42,7 @@ const Sidebar = ({ tabs, activeTabId, onTabSelect, subTabStatuses = {}, contextD
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      minHeight: 'calc(100vh - 64px)' // Assuming a top nav might exist, else 100vh
+      minHeight: 'calc(100vh - 64px)'
     }}>
       <div style={{ padding: '1.5rem', fontWeight: 'bold', fontSize: '1.25rem', borderBottom: '1px solid #374151' }}>
         {import.meta.env.VITE_BRAND_NAME || 'Student'} Portal

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../api/apiClient';
-import Sidebar from '../../components/Sidebar';
-import DynamicForm from '../../components/DynamicForm';
-import DashboardHeader from './STUD/DashboardHeader';
-import SubTabNav from './STUD/SubTabNav';
-import dashboardConfig from '../../config/dashboardConfig.json';
+import apiClient from '../../../api/apiClient';
+import Sidebar from './components/Sidebar';
+import DynamicForm from '../../../components/ui/DynamicForm';
+import DashboardHeader from './components/DashboardHeader';
+import SubTabNav from './components/SubTabNav';
+import dashboardConfig from './config/dashboardConfig.json';
 
 const StudentDashboard = ({ user, onLogout }) => {
   const [dynamicOverrides, setDynamicOverrides] = useState({});

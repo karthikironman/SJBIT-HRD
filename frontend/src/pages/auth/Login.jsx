@@ -1,27 +1,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import apiClient from '../api/apiClient';
+import apiClient from '../../api/apiClient';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       setError(null);
-      const res = await apiClient.post('/auth/login', {
-        email,
-        password
-      });
-
-      // Save tokens and user info
-      localStorage.setItem('accessToken', res.data.accessToken);
-      localStorage.setItem('refreshToken', res.data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-
+      const res = await apiClient.post('/auth/login', { email, password });
+      login(res.data.user, res.data.accessToken, res.data.refreshToken);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
@@ -40,23 +34,23 @@ const Login = () => {
       <form onSubmit={handleLogin}>
         <div className="form-group">
           <label>Email Address</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder={`example@${import.meta.env.VITE_BRAND_DOMAIN || 'example.edu'}`}
-            required 
+            required
           />
         </div>
-        
+
         <div className="form-group">
           <label>Password</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            required 
+            required
           />
         </div>
 

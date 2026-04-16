@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import apiClient from '../../../api/apiClient';
+import apiClient from '../../../../api/apiClient';
 
 const SUBTAB_LABELS = {
   core_info:      'Core Info',

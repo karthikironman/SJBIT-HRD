@@ -1,16 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
-import StudentDashboard from './dashboard/stud_dashboard';
-import AdminDashboard from './dashboard/adm_dashboard';
-
-const ADM_ROLES = ['ADMIN', 'SUPER_USER', 'FPC'];
+import { useAuth } from '../context/AuthContext';
+import { ROLE_GROUPS } from '../config/roles';
+import StudentDashboard from './roles/student/StudentDashboard';
+import AdminDashboard from './roles/admin/AdminDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user, logout } = useAuth();
 
-  if (!user || Object.keys(user).length === 0) return null;
+  if (!user) return null;
 
   const handleLogout = async () => {
     try {
@@ -19,14 +19,12 @@ const Dashboard = () => {
     } catch (err) {
       console.error("Logout error", err);
     } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      logout();
       navigate('/login');
     }
   };
 
-  if (ADM_ROLES.includes(user.role)) {
+  if (ROLE_GROUPS.ADMIN.includes(user.role)) {
     return <AdminDashboard user={user} onLogout={handleLogout} />;
   }
 

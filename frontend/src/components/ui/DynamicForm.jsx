@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StatusBanner from './StatusBanner';
-import apiClient from '../api/apiClient';
-import enums from '../config/enums.json';
+import apiClient from '../../api/apiClient';
+import enums from '../../config/enums.json';
 
 const getNestedValue = (obj, path) => {
   return path.split('.').reduce((acc, part) => (acc !== null && acc !== undefined) ? acc[part] : undefined, obj);
@@ -42,7 +42,7 @@ const DynamicForm = ({ config, onStatusChange }) => {
         const data = res.data?.data || {};
         const backendStatus = res.data?.status || 'INCOMPLETE';
         const backendRemarks = res.data?.remarks || '';
-        
+
         // Merge fetched data over blank schema
         const initialFormState = {};
         config.fields.forEach(f => {
@@ -55,7 +55,7 @@ const DynamicForm = ({ config, onStatusChange }) => {
               Object.assign(initialFormState, setNestedValue(initialFormState, f.name, ''));
           }
         });
-        
+
         setFormData(initialFormState);
         setStatus(backendStatus);
         setRemarks(backendRemarks);
@@ -182,9 +182,9 @@ const DynamicForm = ({ config, onStatusChange }) => {
                     style={{ ...commonProps.style, flex: 1 }}
                   />
                   {getNestedValue(formData, field.name) && (
-                    <a 
-                      href={getNestedValue(formData, field.name)} 
-                      target="_blank" 
+                    <a
+                      href={getNestedValue(formData, field.name)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       style={{
                         backgroundColor: '#E5E7EB',

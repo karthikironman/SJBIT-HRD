@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import AdminSidebar from './ADM/AdminSidebar';
-import UsersTable from './ADM/UsersTable';
-import Approvals from './ADM/Approvals';
+import AdminSidebar from './components/AdminSidebar';
+import UsersTable from './components/UsersTable';
+import Approvals from './components/Approvals';
 
 const PAGE_TITLES = {
   'all-users': { title: 'All Users',  subtitle: 'View and manage all registered users.' },

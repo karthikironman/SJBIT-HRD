@@ -4,3 +4,4 @@ NEW-BACKEND/node_modules/
 frontend/dist/
 frontend/.env
 NEW-BACKEND/.env
+NEW-BACKEND/secrets/*

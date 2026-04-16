@@ -12,7 +12,7 @@ const StatusBanner = ({ status, remarks }) => {
   const config = styleMap[status.toUpperCase()] || styleMap['PENDING'];
 
   return (
-    <div 
+    <div
       style={{
         backgroundColor: config.bg,
         borderLeft: `4px solid ${config.border}`,

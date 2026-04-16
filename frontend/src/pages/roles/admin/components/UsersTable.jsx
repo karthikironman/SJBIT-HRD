@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../../api/apiClient';
-
-const ROLE_COLORS = {
-  SUPER_USER: '#7C3AED',
-  ADMIN:      '#2563EB',
-  FPC:        '#0891B2',
-  SPC:        '#059669',
-  STUDENT:    '#374151',
-  PARENT:     '#B45309',
-};
+import apiClient from '../../../../api/apiClient';
+import { ROLE_COLORS } from '../../../../config/roles';
 
 const UsersTable = () => {
   const [users, setUsers] = useState([]);

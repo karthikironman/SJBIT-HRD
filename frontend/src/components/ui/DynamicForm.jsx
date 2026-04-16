@@ -30,11 +30,15 @@ const DynamicForm = ({ config, onStatusChange }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
+  const [editedWhileApproved, setEditedWhileApproved] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Re-fetch when config changes (e.g. changing subtabs)
   useEffect(() => {
     if (!config) return;
 
+    setEditedWhileApproved(false);
+    setErrors({});
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -70,9 +74,23 @@ const DynamicForm = ({ config, onStatusChange }) => {
     fetchData();
   }, [config]);
 
+  const validateField = (field, value) => {
+    if (!field.regex) return null;
+    if (!value && !field.required) return null; // optional empty fields skip regex
+    if (!value && field.required) return null;  // required-empty handled by native required
+    return new RegExp(field.regex).test(value) ? null : (field.validationMessage || `Invalid format. Expected: ${field.description || field.regex}`);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (status === 'APPROVED') setEditedWhileApproved(true);
     setFormData(prev => setNestedValue(prev, name, value));
+
+    const field = config.fields.find(f => f.name === name);
+    if (field) {
+      const error = validateField(field, value);
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -83,6 +101,20 @@ const DynamicForm = ({ config, onStatusChange }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Run validation on all fields before submitting
+    const newErrors = {};
+    config.fields.forEach(field => {
+      const value = getNestedValue(formData, field.name);
+      const error = validateField(field, value != null ? String(value) : '');
+      if (error) newErrors[field.name] = error;
+    });
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setMessage({ type: 'error', text: 'Please fix the validation errors before submitting.' });
+      return;
+    }
+
     setSaving(true);
     setMessage(null);
 
@@ -93,6 +125,7 @@ const DynamicForm = ({ config, onStatusChange }) => {
       setStatus('PENDING');
       if (onStatusChange) onStatusChange('PENDING');
 
+      setEditedWhileApproved(false);
       setMessage({ type: 'success', text: 'Data saved successfully and is pending verification.' });
     } catch (err) {
       console.error(err);
@@ -105,11 +138,25 @@ const DynamicForm = ({ config, onStatusChange }) => {
   if (!config) return null;
   if (loading) return <div>Loading form data...</div>;
 
-  const isReadOnly = status === 'PENDING' || status === 'APPROVED';
+  const isReadOnly = status === 'PENDING';
 
   return (
     <div style={{ maxWidth: '800px' }}>
       <StatusBanner status={status} remarks={remarks} />
+
+      {editedWhileApproved && (
+        <div style={{
+          padding: '0.75rem 1rem',
+          marginBottom: '1rem',
+          backgroundColor: '#FEF3C7',
+          color: '#92400E',
+          borderRadius: '0.375rem',
+          border: '1px solid #FCD34D',
+          fontSize: '0.875rem'
+        }}>
+          You are editing approved data. Saving will reset the status back to <strong>Pending</strong> for re-verification.
+        </div>
+      )}
 
       {message && (
         <div style={{
@@ -125,6 +172,8 @@ const DynamicForm = ({ config, onStatusChange }) => {
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         {config.fields.map((field) => {
+          const fieldError = errors[field.name];
+
           const commonProps = {
             id: field.name,
             name: field.name,
@@ -134,16 +183,21 @@ const DynamicForm = ({ config, onStatusChange }) => {
               width: '100%',
               padding: '0.5rem',
               borderRadius: '0.375rem',
-              border: '1px solid #D1D5DB',
+              border: `1px solid ${fieldError ? '#EF4444' : '#D1D5DB'}`,
               backgroundColor: isReadOnly ? '#F3F4F6' : '#FFFFFF'
             }
           };
 
           return (
             <div key={field.name} style={{ display: 'flex', flexDirection: 'column' }}>
-              <label htmlFor={field.name} style={{ marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
+              <label htmlFor={field.name} style={{ marginBottom: '0.25rem', fontWeight: '500', color: '#374151' }}>
                 {field.label} {field.required && <span style={{ color: '#EF4444' }}>*</span>}
               </label>
+              {field.description && (
+                <span style={{ fontSize: '0.75rem', color: '#6B7280', marginBottom: '0.375rem' }}>
+                  {field.description}
+                </span>
+              )}
 
               {field.type === 'select' ? (
                 <select
@@ -214,6 +268,11 @@ const DynamicForm = ({ config, onStatusChange }) => {
                   value={getNestedValue(formData, field.name) || ''}
                   onChange={handleChange}
                 />
+              )}
+              {fieldError && (
+                <span style={{ fontSize: '0.75rem', color: '#EF4444', marginTop: '0.25rem' }}>
+                  {fieldError}
+                </span>
               )}
             </div>
           );

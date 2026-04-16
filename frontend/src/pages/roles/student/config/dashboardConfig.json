@@ -10,19 +10,19 @@
             "fetchEndpoint": "/student/core-info",
             "saveEndpoint": "/student/core-info",
             "fields": [
-              { "name": "usn", "label": "USN", "type": "text", "required": true, "maxLength": 20 },
-              { "name": "full_name", "label": "Full Name", "type": "text", "required": true, "maxLength": 255 },
-              { "name": "first_name", "label": "First Name", "type": "text", "required": true, "maxLength": 100 },
-              { "name": "middle_name", "label": "Middle Name", "type": "text", "required": false, "maxLength": 100 },
-              { "name": "last_name", "label": "Last Name", "type": "text", "required": true, "maxLength": 100 },
-              { "name": "department", "label": "Department / Branch", "type": "select", "enumKey": "DEPARTMENT_BRANCH", "required": true },
-              { "name": "pursuing_degree", "label": "Pursuing Degree", "type": "select", "enumKey": "PURSUING_DEGREE", "required": true },
-              { "name": "mobile_number", "label": "Mobile Number", "type": "tel", "required": true, "maxLength": 15 },
-              { "name": "whatsapp_number", "label": "WhatsApp Number", "type": "tel", "required": true, "maxLength": 15 },
-              { "name": "gender", "label": "Gender", "type": "select", "enumKey": "GENDER", "required": true },
-              { "name": "dob", "label": "Date of Birth", "type": "date", "required": true },
-              { "name": "ug_pg", "label": "Education Level", "type": "select", "enumKey": "EDU_LEVEL", "required": true },
-              { "name": "mentor_id", "label": "Mentor ID", "type": "text", "required": false }
+              { "name": "usn", "label": "USN", "type": "text", "required": true, "maxLength": 10, "regex": "^[0-9][A-Za-z]{2}[0-9]{2}[A-Za-z]{2}[0-9]{3}$", "description": "Format: 1SI21CS001 — digit, 2 letters, 2 digits, 2 letters, 3 digits" },
+              { "name": "full_name", "label": "Full Name", "type": "text", "required": true, "maxLength": 255, "regex": "^[A-Za-z ]+$", "description": "Full name as per official records, letters and spaces only" },
+              { "name": "first_name", "label": "First Name", "type": "text", "required": true, "maxLength": 100, "regex": "^[A-Za-z]+$", "description": "Letters only, no spaces" },
+              { "name": "middle_name", "label": "Middle Name", "type": "text", "required": false, "maxLength": 100, "regex": "^[A-Za-z]*$", "description": "Letters only, no spaces (optional)" },
+              { "name": "last_name", "label": "Last Name", "type": "text", "required": true, "maxLength": 100, "regex": "^[A-Za-z]+$", "description": "Letters only, no spaces" },
+              { "name": "department", "label": "Department / Branch", "type": "select", "enumKey": "DEPARTMENT_BRANCH", "required": true, "description": "Select your current department or branch" },
+              { "name": "pursuing_degree", "label": "Pursuing Degree", "type": "select", "enumKey": "PURSUING_DEGREE", "required": true, "description": "Select the degree you are currently pursuing" },
+              { "name": "mobile_number", "label": "Mobile Number", "type": "tel", "required": true, "maxLength": 10, "regex": "^[0-9]{10}$", "description": "Enter 10-digit number without +91 or spaces" },
+              { "name": "whatsapp_number", "label": "WhatsApp Number", "type": "tel", "required": true, "maxLength": 10, "regex": "^[0-9]{10}$", "description": "Enter 10-digit WhatsApp number without +91 or spaces" },
+              { "name": "gender", "label": "Gender", "type": "select", "enumKey": "GENDER", "required": true, "description": "Select your gender" },
+              { "name": "dob", "label": "Date of Birth", "type": "date", "required": true, "description": "Select your date of birth as per official records" },
+              { "name": "ug_pg", "label": "Education Level", "type": "select", "enumKey": "EDU_LEVEL", "required": true, "description": "Select UG if pursuing Bachelor's, PG if pursuing Master's" },
+              { "name": "mentor_id", "label": "Mentor ID", "type": "text", "required": false, "description": "Your assigned faculty mentor's ID (if known)" }
             ]
           },
           {
@@ -31,17 +31,17 @@
             "fetchEndpoint": "/student/personal-info",
             "saveEndpoint": "/student/personal-info",
             "fields": [
-              { "name": "father_name", "label": "Father's Name", "type": "text", "required": true },
-              { "name": "father_mobile_number", "label": "Father's Mobile Number", "type": "tel", "required": true },
-              { "name": "father_occupation", "label": "Father's Occupation", "type": "text", "required": true },
-              { "name": "mother_name", "label": "Mother's Name", "type": "text", "required": true },
-              { "name": "mother_mobile_number", "label": "Mother's Mobile Number", "type": "tel", "required": true },
-              { "name": "mother_occupation", "label": "Mother's Occupation", "type": "text", "required": true },
-              { "name": "communication_address", "label": "Communication Address", "type": "textarea", "required": true },
-              { "name": "permanent_address", "label": "Permanent Address", "type": "textarea", "required": true },
-              { "name": "native_place", "label": "Native Place", "type": "text", "required": true },
-              { "name": "state", "label": "State", "type": "text", "required": true },
-              { "name": "pin_code", "label": "PIN Code", "type": "text", "required": true }
+              { "name": "father_name", "label": "Father's Name", "type": "text", "required": true, "regex": "^[A-Za-z ]+$", "description": "Letters and spaces only" },
+              { "name": "father_mobile_number", "label": "Father's Mobile Number", "type": "tel", "required": true, "maxLength": 10, "regex": "^[0-9]{10}$", "description": "Enter 10-digit number without +91 or spaces" },
+              { "name": "father_occupation", "label": "Father's Occupation", "type": "text", "required": true, "description": "Enter father's current occupation or profession" },
+              { "name": "mother_name", "label": "Mother's Name", "type": "text", "required": true, "regex": "^[A-Za-z ]+$", "description": "Letters and spaces only" },
+              { "name": "mother_mobile_number", "label": "Mother's Mobile Number", "type": "tel", "required": true, "maxLength": 10, "regex": "^[0-9]{10}$", "description": "Enter 10-digit number without +91 or spaces" },
+              { "name": "mother_occupation", "label": "Mother's Occupation", "type": "text", "required": true, "description": "Enter mother's current occupation or profession" },
+              { "name": "communication_address", "label": "Communication Address", "type": "textarea", "required": true, "description": "Current address where you can be reached" },
+              { "name": "permanent_address", "label": "Permanent Address", "type": "textarea", "required": true, "description": "Permanent residential address as per official records" },
+              { "name": "native_place", "label": "Native Place", "type": "text", "required": true, "regex": "^[A-Za-z ]+$", "description": "City or town of origin, letters and spaces only" },
+              { "name": "state", "label": "State", "type": "text", "required": true, "regex": "^[A-Za-z ]+$", "description": "State of residence, letters and spaces only" },
+              { "name": "pin_code", "label": "PIN Code", "type": "text", "required": true, "maxLength": 6, "regex": "^[0-9]{6}$", "description": "Enter 6-digit postal PIN code" }
             ]
           },
           {
@@ -50,8 +50,8 @@
             "fetchEndpoint": "/student/official-info",
             "saveEndpoint": "/student/official-info",
             "fields": [
-              { "name": "pan_number", "label": "PAN Number", "type": "text", "required": false },
-              { "name": "aadhar_number", "label": "Aadhar Number", "type": "text", "required": true }
+              { "name": "pan_number", "label": "PAN Number", "type": "text", "required": false, "maxLength": 10, "regex": "^[A-Z]{5}[0-9]{4}[A-Z]{1}$", "description": "Format: ABCDE1234F — 5 uppercase letters, 4 digits, 1 uppercase letter" },
+              { "name": "aadhar_number", "label": "Aadhar Number", "type": "text", "required": true, "maxLength": 12, "regex": "^[0-9]{12}$", "description": "Enter 12-digit Aadhaar number without spaces or dashes" }
             ]
           }
         ]
@@ -66,14 +66,14 @@
             "fetchEndpoint": "/student/academics/schooling",
             "saveEndpoint": "/student/academics/schooling",
             "fields": [
-              { "name": "sslc_perc", "label": "SSLC Percentage", "type": "number", "required": true },
-              { "name": "sslc_meta.year_of_passing", "label": "SSLC Year of Passing", "type": "number", "required": true },
-              { "name": "sslc_meta.board", "label": "SSLC Board", "type": "text", "required": true },
-              { "name": "puc_perc", "label": "PUC Percentage", "type": "number", "required": true },
-              { "name": "puc_meta.year_of_passing", "label": "PUC Year of Passing", "type": "number", "required": true },
-              { "name": "puc_meta.board", "label": "PUC Board", "type": "text", "required": true },
-              { "name": "admission_mode", "label": "Admission Mode", "type": "select", "enumKey": "ADMISSION_MODE", "required": true },
-              { "name": "competitive_ranking", "label": "Competitive Ranking", "type": "text", "required": false }
+              { "name": "sslc_perc", "label": "SSLC Percentage", "type": "number", "required": true, "description": "Enter percentage (e.g. 85.5), not CGPA" },
+              { "name": "sslc_meta.year_of_passing", "label": "SSLC Year of Passing", "type": "number", "required": true, "regex": "^[0-9]{4}$", "description": "Enter 4-digit year (e.g. 2019)" },
+              { "name": "sslc_meta.board", "label": "SSLC Board", "type": "text", "required": true, "description": "e.g. CBSE, ICSE, Karnataka State Board" },
+              { "name": "puc_perc", "label": "PUC Percentage", "type": "number", "required": true, "description": "Enter percentage (e.g. 78.4), not CGPA" },
+              { "name": "puc_meta.year_of_passing", "label": "PUC Year of Passing", "type": "number", "required": true, "regex": "^[0-9]{4}$", "description": "Enter 4-digit year (e.g. 2021)" },
+              { "name": "puc_meta.board", "label": "PUC Board", "type": "text", "required": true, "description": "e.g. CBSE, ICSE, Karnataka Pre-University Board" },
+              { "name": "admission_mode", "label": "Admission Mode", "type": "select", "enumKey": "ADMISSION_MODE", "required": true, "description": "Select how you were admitted to this institution" },
+              { "name": "competitive_ranking", "label": "Competitive Ranking", "type": "text", "required": false, "description": "Your rank in CET, COMED-K or equivalent exam (optional)" }
             ]
           },
           {
@@ -83,19 +83,19 @@
             "saveEndpoint": "/student/academics/current-scores",
             "fields": [
              
-              { "name": "current_cgpa", "label": "Current CGPA", "type": "number", "required": true },
-              { "name": "active_backlogs", "label": "Active Backlogs", "type": "number", "required": true },
-              { "name": "backlog_history", "label": "Backlog History", "type": "select", "options": [{"title": "Yes", "value": "true"}, {"title": "No", "value": "false"}], "required": true },
-              { "name": "gap_info.has_gap", "label": "Education Gap", "type": "select", "options": [{"title": "Yes", "value": "true"}, {"title": "No", "value": "false"}], "required": true },
-              { "name": "gap_info.gap_years", "label": "Gap Years", "type": "number", "required": false },
-               { "name": "sgpas.0", "label": "Semester 1 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.1", "label": "Semester 2 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.2", "label": "Semester 3 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.3", "label": "Semester 4 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.4", "label": "Semester 5 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.5", "label": "Semester 6 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.6", "label": "Semester 7 SGPA", "type": "number", "required": false },
-              { "name": "sgpas.7", "label": "Semester 8 SGPA", "type": "number", "required": false }
+              { "name": "current_cgpa", "label": "Current CGPA", "type": "number", "required": true, "description": "Enter your latest CGPA on a 10-point scale (e.g. 8.5)" },
+              { "name": "active_backlogs", "label": "Active Backlogs", "type": "number", "required": true, "description": "Enter 0 if you have no active backlogs" },
+              { "name": "backlog_history", "label": "Backlog History", "type": "select", "options": [{"title": "Yes", "value": "true"}, {"title": "No", "value": "false"}], "required": true, "description": "Select Yes if you have had backlogs in any past semester" },
+              { "name": "gap_info.has_gap", "label": "Education Gap", "type": "select", "options": [{"title": "Yes", "value": "true"}, {"title": "No", "value": "false"}], "required": true, "description": "Select Yes if there was a gap year in your education" },
+              { "name": "gap_info.gap_years", "label": "Gap Years", "type": "number", "required": false, "description": "Number of gap years (leave blank if no gap)" },
+              { "name": "sgpas.0", "label": "Semester 1 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.1", "label": "Semester 2 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.2", "label": "Semester 3 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.3", "label": "Semester 4 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.4", "label": "Semester 5 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.5", "label": "Semester 6 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.6", "label": "Semester 7 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" },
+              { "name": "sgpas.7", "label": "Semester 8 SGPA", "type": "number", "required": false, "description": "SGPA on a 10-point scale, leave blank if not completed" }
             ]
           },
           {
@@ -110,10 +110,10 @@
             "fetchEndpoint": "/student/academics/previous-edu",
             "saveEndpoint": "/student/academics/previous-edu",
             "fields": [
-              { "name": "ug_percentage", "label": "UG Percentage", "type": "number", "required": true },
-              { "name": "pg_specialization", "label": "PG Specialization", "type": "select", "enumKey": "PG_SPEC_TYPE", "required": true },
-              { "name": "previous_edu_details.ug_university", "label": "UG University", "type": "text", "required": false },
-              { "name": "previous_edu_details.year_of_passing", "label": "UG Year of Passing", "type": "number", "required": false }
+              { "name": "ug_percentage", "label": "UG Percentage", "type": "number", "required": true, "description": "Enter your UG final percentage (e.g. 72.3)" },
+              { "name": "pg_specialization", "label": "PG Specialization", "type": "select", "enumKey": "PG_SPEC_TYPE", "required": true, "description": "Select your PG specialization stream" },
+              { "name": "previous_edu_details.ug_university", "label": "UG University", "type": "text", "required": false, "description": "Full name of your undergraduate university (optional)" },
+              { "name": "previous_edu_details.year_of_passing", "label": "UG Year of Passing", "type": "number", "required": false, "regex": "^[0-9]{4}$", "description": "Enter 4-digit year (e.g. 2022)" }
             ]
           }
         ]
@@ -128,63 +128,63 @@
             "label": "Resume",
             "fetchEndpoint": "/student/document/resume",
             "saveEndpoint": "/student/document/resume",
-            "fields": [{ "name": "document_url", "label": "Resume URL (Google Drive/Public Link)", "type": "url", "required": true }]
+            "fields": [{ "name": "document_url", "label": "Resume URL", "type": "url", "required": true, "description": "Paste a publicly accessible Google Drive or OneDrive link. Make sure sharing is set to 'Anyone with the link can view'" }]
           },
           {
             "id": "marks_card_10th",
             "label": "10th Marks Card",
             "fetchEndpoint": "/student/document/marks_card_10th",
             "saveEndpoint": "/student/document/marks_card_10th",
-            "fields": [{ "name": "document_url", "label": "10th Marks Card URL", "type": "url", "required": true }]
+            "fields": [{ "name": "document_url", "label": "10th Marks Card URL", "type": "url", "required": true, "description": "Upload your SSLC / 10th marks card and paste the shareable link here" }]
           },
           {
             "id": "marks_card_12th",
             "label": "12th Marks Card",
             "fetchEndpoint": "/student/document/marks_card_12th",
             "saveEndpoint": "/student/document/marks_card_12th",
-            "fields": [{ "name": "document_url", "label": "12th Marks Card URL", "type": "url", "required": true }]
+            "fields": [{ "name": "document_url", "label": "12th Marks Card URL", "type": "url", "required": true, "description": "Upload your PUC / 12th marks card and paste the shareable link here" }]
           },
           {
             "id": "ug_marks_card",
             "label": "UG Marks Cards (All Sem)",
             "fetchEndpoint": "/student/document/ug_marks_card",
             "saveEndpoint": "/student/document/ug_marks_card",
-            "fields": [{ "name": "document_url", "label": "UG Marks Cards URL", "type": "url", "required": false }]
+            "fields": [{ "name": "document_url", "label": "UG Marks Cards URL", "type": "url", "required": false, "description": "Upload all semester UG marks cards as a single PDF/folder and paste the shareable link (optional)" }]
           },
           {
             "id": "pg_marks_card",
             "label": "PG Marks Cards (All Sem)",
             "fetchEndpoint": "/student/document/pg_marks_card",
             "saveEndpoint": "/student/document/pg_marks_card",
-            "fields": [{ "name": "document_url", "label": "PG Marks Cards URL", "type": "url", "required": false }]
+            "fields": [{ "name": "document_url", "label": "PG Marks Cards URL", "type": "url", "required": false, "description": "Upload all semester PG marks cards as a single PDF/folder and paste the shareable link (optional)" }]
           },
           {
             "id": "pan_card",
             "label": "PAN Card",
             "fetchEndpoint": "/student/document/pan_card",
             "saveEndpoint": "/student/document/pan_card",
-            "fields": [{ "name": "document_url", "label": "PAN Card URL", "type": "url", "required": false }]
+            "fields": [{ "name": "document_url", "label": "PAN Card URL", "type": "url", "required": false, "description": "Upload a clear scan or photo of your PAN card and paste the shareable link (optional)" }]
           },
           {
             "id": "aadhaar_card",
             "label": "Aadhaar Card",
             "fetchEndpoint": "/student/document/aadhaar_card",
             "saveEndpoint": "/student/document/aadhaar_card",
-            "fields": [{ "name": "document_url", "label": "Aadhaar Card URL", "type": "url", "required": true }]
+            "fields": [{ "name": "document_url", "label": "Aadhaar Card URL", "type": "url", "required": true, "description": "Upload a clear scan or photo of your Aadhaar card and paste the shareable link" }]
           },
           {
             "id": "passport_photo",
             "label": "Passport Photo",
             "fetchEndpoint": "/student/document/passport_photo",
             "saveEndpoint": "/student/document/passport_photo",
-            "fields": [{ "name": "document_url", "label": "Passport Size Photo URL", "type": "url", "required": true }]
+            "fields": [{ "name": "document_url", "label": "Passport Size Photo URL", "type": "url", "required": true, "description": "Upload a recent passport-size photo (white/light background) and paste the shareable link" }]
           },
           {
             "id": "college_id",
             "label": "College ID",
             "fetchEndpoint": "/student/document/college_id",
             "saveEndpoint": "/student/document/college_id",
-            "fields": [{ "name": "document_url", "label": "College ID Card URL", "type": "url", "required": true }]
+            "fields": [{ "name": "document_url", "label": "College ID Card URL", "type": "url", "required": true, "description": "Upload a scan or photo of your current college ID card and paste the shareable link" }]
           }
         ]
       },
@@ -200,10 +200,10 @@
               "fetchEndpoint": "/student/offers/:id",
               "saveEndpoint": "/student/offers/:id",
               "fields": [
-                 { "name": "company_name", "label": "Company Name", "type": "text", "required": true },
-                 { "name": "salary_lpa", "label": "Salary (LPA)", "type": "number", "required": true },
-                 { "name": "offer_letter_url", "label": "Offer Letter Link", "type": "url", "required": true },
-                 { "name": "is_accepted", "label": "Accepted By You?", "type": "select", "options": [{"title":"Yes","value":"true"},{"title":"No","value":"false"}], "required": true }
+                 { "name": "company_name", "label": "Company Name", "type": "text", "required": true, "regex": "^[A-Za-z0-9 &.,()-]+$", "description": "Full legal name of the company (e.g. Infosys Ltd, Google LLC)" },
+                 { "name": "salary_lpa", "label": "Salary (LPA)", "type": "number", "required": true, "description": "Annual CTC in Lakhs Per Annum (e.g. 6.5)" },
+                 { "name": "offer_letter_url", "label": "Offer Letter Link", "type": "url", "required": true, "description": "Upload your offer letter and paste a shareable Google Drive / OneDrive link" },
+                 { "name": "is_accepted", "label": "Accepted By You?", "type": "select", "options": [{"title":"Yes","value":"true"},{"title":"No","value":"false"}], "required": true, "description": "Select Yes only if you have formally accepted this offer" }
               ]
            }
         },

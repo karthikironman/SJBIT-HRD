@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import apiClient from '../../../../api/apiClient';
+import paginationConfig from '../../../../config/pagination.json';
 
 const SUBTAB_LABELS = {
   core_info:      'Core Info',
@@ -302,15 +303,22 @@ const Approvals = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
   const [modal, setModal]     = useState(null); // { userId, studentName, subtabKey }
+  
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = paginationConfig.DEFAULT_LIMIT;
 
   const fetchData = useCallback(() => {
     setLoading(true);
     setError(null);
-    apiClient.get('/admin/pending-approvals')
-      .then(res => setRows(res.data?.data || []))
+    apiClient.get(`/admin/pending-approvals?page=${page}&limit=${limit}`)
+      .then(res => {
+        setRows(res.data?.data?.users || []);
+        setTotalPages(res.data?.data?.pagination?.totalPages || 1);
+      })
       .catch(() => setError('Failed to load pending approvals.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [page, limit]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -396,6 +404,24 @@ const Approvals = () => {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div style={{ padding: '1rem', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: '#6B7280', fontSize: '0.875rem' }}>
+          Page {page} of {totalPages === 0 ? 1 : totalPages}
+        </span>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            style={{ padding: '0.35rem 0.75rem', backgroundColor: page === 1 ? '#F3F4F6' : '#FFF', border: '1px solid #D1D5DB', borderRadius: '0.375rem', cursor: page === 1 ? 'not-allowed' : 'pointer', color: page === 1 ? '#9CA3AF' : '#374151', fontSize: '0.875rem' }}
+          >Previous</button>
+          <button 
+            disabled={page >= totalPages}
+            onClick={() => setPage(p => p + 1)}
+            style={{ padding: '0.35rem 0.75rem', backgroundColor: page >= totalPages ? '#F3F4F6' : '#FFF', border: '1px solid #D1D5DB', borderRadius: '0.375rem', cursor: page >= totalPages ? 'not-allowed' : 'pointer', color: page >= totalPages ? '#9CA3AF' : '#374151', fontSize: '0.875rem' }}
+          >Next</button>
+        </div>
       </div>
 
       {modal && (

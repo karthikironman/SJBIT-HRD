@@ -108,6 +108,18 @@ const createUserTable = async () => {
     );
   `;
 
+  const CREATE_NON_STUDENT_PROFILES_TABLE = `
+    CREATE TABLE IF NOT EXISTS non_student_profiles (
+        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        department_branches department_branch[] DEFAULT ARRAY[]::department_branch[],
+        full_name VARCHAR(255),
+        mobile_number VARCHAR(15),
+        whatsapp_number VARCHAR(15),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
   const CREATE_ACADEMICS_TABLE = `
     CREATE TABLE IF NOT EXISTS student_academics (
         student_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -162,6 +174,7 @@ const createUserTable = async () => {
     await pool.query(CREATE_USERS_TABLE);
     await pool.query(CREATE_REFRESH_TOKENS_TABLE);
     await pool.query(CREATE_STUDENT_PROFILES_TABLE);
+    await pool.query(CREATE_NON_STUDENT_PROFILES_TABLE);
     await pool.query(CREATE_ACADEMICS_TABLE);
     await pool.query(CREATE_DOCUMENTS_TABLE);
     await pool.query(CREATE_OFFERS_TABLE);

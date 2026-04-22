@@ -50,8 +50,9 @@ const Sidebar = ({ tabs, activeTabId, onTabSelect, subTabStatuses = {}, contextD
       <nav style={{ flex: 1, padding: '1rem 0' }}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {tabs.map(tab => {
-            const aggStatus = getAggregatedStatus(tab);
-            const statusMeta = STATUS_ICONS[aggStatus];
+            const isCustom = tab.isCustomComponent;
+            const aggStatus = isCustom ? null : getAggregatedStatus(tab);
+            const statusMeta = isCustom ? null : STATUS_ICONS[aggStatus];
 
             return (
               <li key={tab.id}>
@@ -72,10 +73,15 @@ const Sidebar = ({ tabs, activeTabId, onTabSelect, subTabStatuses = {}, contextD
                     justifyContent: 'space-between'
                   }}
                 >
-                  <span>{tab.label}</span>
-                  <span title={aggStatus} style={{ fontSize: '0.8rem' }}>
-                    {statusMeta.icon}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {tab.icon && <span>{tab.icon}</span>}
+                    <span>{tab.label}</span>
+                  </div>
+                  {!isCustom && statusMeta && (
+                    <span title={aggStatus} style={{ fontSize: '0.8rem' }}>
+                      {statusMeta.icon}
+                    </span>
+                  )}
                 </button>
               </li>
             );

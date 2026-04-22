@@ -56,7 +56,7 @@ const AdminDashboard = ({ user, onLogout }) => {
             boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
             overflow: 'hidden'
           }}>
-            {activeTabId === 'all-users' && <UsersTable />}
+            {activeTabId === 'all-users' && <UsersTable currentUser={user} />}
             {activeTabId === 'approvals' && <Approvals />}
           </div>
         </div>

@@ -90,8 +90,9 @@ const ApprovalModal = ({ userId, studentName, subtabKey, onClose, onDone }) => {
       await apiClient.post(`/admin/approve/${userId}/${subtabKey}`);
       setFeedback({ type: 'success', text: 'Approved successfully.' });
       setTimeout(() => { onDone(); onClose(); }, 900);
-    } catch {
-      setError('Failed to approve. Please try again.');
+    } catch (err) {
+      const d = err.response?.data;
+      setError((d?.message && d.message !== 'Something went wrong') ? d.message : (d?.error || 'Failed to approve. Please try again.'));
     } finally {
       setActionLoading(false);
     }
@@ -105,8 +106,9 @@ const ApprovalModal = ({ userId, studentName, subtabKey, onClose, onDone }) => {
       await apiClient.post(`/admin/reject/${userId}/${subtabKey}`, { remarks });
       setFeedback({ type: 'error', text: 'Rejected successfully.' });
       setTimeout(() => { onDone(); onClose(); }, 900);
-    } catch {
-      setError('Failed to reject. Please try again.');
+    } catch (err) {
+      const d = err.response?.data;
+      setError((d?.message && d.message !== 'Something went wrong') ? d.message : (d?.error || 'Failed to reject. Please try again.'));
     } finally {
       setActionLoading(false);
     }

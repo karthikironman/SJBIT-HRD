@@ -54,7 +54,10 @@ const DynamicForm = ({ config, onStatusChange }) => {
           const currentFormVal = getNestedValue(initialFormState, f.name);
           // Only set if not already present or if the new value is defined
           if (val !== undefined && val !== null) {
-              Object.assign(initialFormState, setNestedValue(initialFormState, f.name, val));
+              const coerced = (f.type === 'date' && typeof val === 'string' && val.length > 10)
+                ? val.slice(0, 10)
+                : val;
+              Object.assign(initialFormState, setNestedValue(initialFormState, f.name, coerced));
           } else if (currentFormVal === undefined) {
               Object.assign(initialFormState, setNestedValue(initialFormState, f.name, ''));
           }
@@ -129,7 +132,11 @@ const DynamicForm = ({ config, onStatusChange }) => {
       setMessage({ type: 'success', text: 'Data saved successfully and is pending verification.' });
     } catch (err) {
       console.error(err);
-      setMessage({ type: 'error', text: 'Failed to save data. Try again.' });
+      const data = err.response?.data;
+      const backendMsg = (data?.message && data.message !== 'Something went wrong')
+        ? data.message
+        : (data?.error || null);
+      setMessage({ type: 'error', text: backendMsg || 'Failed to save data. Please try again.' });
     } finally {
       setSaving(false);
     }

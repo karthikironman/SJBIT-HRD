@@ -132,6 +132,7 @@ const UsersTable = ({ currentUser }) => {
   const [submittingBulk, setSubmittingBulk] = useState(false);
   
   const [deletingUser, setDeletingUser] = useState({});
+  const [actionMsg, setActionMsg] = useState(null); // { type: 'success'|'error', text: '' }
 
   const [editingFpcId, setEditingFpcId] = useState(null);
   const [fpcEditDepts, setFpcEditDepts] = useState([]);
@@ -182,7 +183,7 @@ const UsersTable = ({ currentUser }) => {
       .then(() => {
         fetchUsers();
       })
-      .catch(() => alert('Failed to update role.'))
+      .catch(err => { const d = err.response?.data; setActionMsg({ type: 'error', text: (d?.message && d.message !== 'Something went wrong') ? d.message : (d?.error || 'Failed to update role.') }); })
       .finally(() => {
         setUpdatingRole(prev => ({ ...prev, [userId]: false }));
       });
@@ -195,12 +196,13 @@ const UsersTable = ({ currentUser }) => {
     setSubmittingBulk(true);
     apiClient.post('/admin/users/bulk-fpcs', { fpcs: validInputs })
       .then(res => {
-        alert(`Successfully added ${res.data?.data?.successful?.length || 0} FPCs.`);
+        const count = res.data?.data?.successful?.length || 0;
+        setActionMsg({ type: 'success', text: `Successfully added ${count} FPC${count !== 1 ? 's' : ''}.` });
         setFpcInputs([{ email: '', department_branches: ['CSE'] }]);
         setShowBulkAdd(false);
         fetchUsers();
       })
-      .catch(() => alert('Failed to create FPCs.'))
+      .catch(err => { const d = err.response?.data; setActionMsg({ type: 'error', text: (d?.message && d.message !== 'Something went wrong') ? d.message : (d?.error || 'Failed to create FPCs.') }); })
       .finally(() => setSubmittingBulk(false));
   };
 
@@ -210,13 +212,13 @@ const UsersTable = ({ currentUser }) => {
     setDeletingUser(prev => ({ ...prev, [userId]: true }));
     apiClient.delete(`/admin/users/${userId}`)
       .then(() => fetchUsers())
-      .catch(() => alert('Failed to delete user.'))
+      .catch(err => { const d = err.response?.data; setActionMsg({ type: 'error', text: (d?.message && d.message !== 'Something went wrong') ? d.message : (d?.error || 'Failed to delete user.') }); })
       .finally(() => setDeletingUser(prev => ({ ...prev, [userId]: false })));
   };
 
   const handleSaveFpcDepartments = (userId) => {
     if (fpcEditDepts.length === 0) {
-      alert("Please select at least one department");
+      setActionMsg({ type: 'error', text: 'Please select at least one department.' });
       return;
     }
     setSavingFpcId(userId);
@@ -225,12 +227,30 @@ const UsersTable = ({ currentUser }) => {
         setEditingFpcId(null);
         fetchUsers();
       })
-      .catch(() => alert('Failed to update FPC departments.'))
+      .catch(err => { const d = err.response?.data; setActionMsg({ type: 'error', text: (d?.message && d.message !== 'Something went wrong') ? d.message : (d?.error || 'Failed to update FPC departments.') }); })
       .finally(() => setSavingFpcId(null));
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* Action feedback banner */}
+      {actionMsg && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0.75rem 1.25rem',
+          backgroundColor: actionMsg.type === 'success' ? '#D1FAE5' : '#FEE2E2',
+          color: actionMsg.type === 'success' ? '#065F46' : '#B91C1C',
+          borderBottom: `1px solid ${actionMsg.type === 'success' ? '#A7F3D0' : '#FECACA'}`,
+          fontSize: '0.875rem',
+        }}>
+          <span>{actionMsg.text}</span>
+          <button
+            onClick={() => setActionMsg(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: '700', fontSize: '1rem', lineHeight: 1, padding: '0 0.25rem' }}
+          >✕</button>
+        </div>
+      )}
+
       {/* Tabs */}
       <div style={{
         display: 'flex',

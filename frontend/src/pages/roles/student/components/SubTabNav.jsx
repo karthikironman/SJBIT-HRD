@@ -7,8 +7,8 @@ const STATUS_META = {
   'APPROVED':   { color: '#10B981' },
 };
 
-const SubTabNav = ({ visibleSubTabs, activeSubTabId, onSubTabSelect, subTabStatuses, isVertical, hasDynamicSubTabs, onAddNewOffer }) => {
-  if (!visibleSubTabs.length && !hasDynamicSubTabs) return null;
+const SubTabNav = ({ visibleSubTabs, activeSubTabId, onSubTabSelect, subTabStatuses, isVertical }) => {
+  if (!visibleSubTabs.length) return null;
 
   return (
     <div style={{
@@ -66,26 +66,6 @@ const SubTabNav = ({ visibleSubTabs, activeSubTabId, onSubTabSelect, subTabStatu
         );
       })}
 
-      {hasDynamicSubTabs && (
-        <button
-          onClick={onAddNewOffer}
-          style={{
-            backgroundColor: 'transparent',
-            border: isVertical ? '1px dashed #9CA3AF' : 'none',
-            color: '#4B5563',
-            padding: '0.75rem 1rem',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            textAlign: isVertical ? 'center' : 'left',
-            borderRadius: isVertical ? '0.375rem' : 0,
-            marginTop: isVertical ? '0.5rem' : 0,
-            width: '100%',
-            transition: 'all 0.2s',
-          }}
-        >
-          ➕ Add New Offer
-        </button>
-      )}
     </div>
   );
 };

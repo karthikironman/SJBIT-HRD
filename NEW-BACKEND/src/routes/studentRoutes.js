@@ -1,15 +1,14 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { 
-  getCoreInfo, saveCoreInfo, 
-  getPersonalInfo, savePersonalInfo, 
+import {
+  getCoreInfo, saveCoreInfo,
+  getPersonalInfo, savePersonalInfo,
   getOfficialInfo, saveOfficialInfo,
   getSchooling, saveSchooling,
   getCurrentScores, saveCurrentScores,
   getPreviousEdu, savePreviousEdu,
   getStatuses,
   getDocument, saveDocument,
-  getOffersList, createOffer, getOffer, saveOffer
 } from "../controllers/studentController.js";
 
 const studentRoutes = express.Router();
@@ -40,9 +39,5 @@ studentRoutes.post("/academics/previous-edu", savePreviousEdu);
 studentRoutes.get("/document/:docKey", getDocument);
 studentRoutes.post("/document/:docKey", saveDocument);
 
-studentRoutes.get("/offers", getOffersList);
-studentRoutes.post("/offers/new", createOffer);
-studentRoutes.get("/offers/:id", getOffer);
-studentRoutes.post("/offers/:id", saveOffer);
 
 export default studentRoutes;

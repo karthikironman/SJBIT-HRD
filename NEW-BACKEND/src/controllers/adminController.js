@@ -140,8 +140,17 @@ export const getPendingApprovals = async (req, res, next) => {
         const limitOffsetValues = [...filterValues, limit, offset];
         const result = await pool.query(query, limitOffsetValues);
         
+        // Strip offer_ keys from sub_tab_statuses — offers are managed by FPC/admin, not via this approval flow
+        const users = result.rows.map(row => {
+            if (!row.sub_tab_statuses) return row;
+            const filtered = Object.fromEntries(
+                Object.entries(row.sub_tab_statuses).filter(([k]) => !k.startsWith('offer_'))
+            );
+            return { ...row, sub_tab_statuses: filtered };
+        });
+
         handleResponse(res, 200, "Pending approvals fetched", {
-            users: result.rows,
+            users,
             pagination: {
                 totalCount,
                 totalPages,
@@ -348,6 +357,49 @@ export const updateFpcDepartments = async (req, res, next) => {
         }
 
         handleResponse(res, 200, "FPC departments updated successfully", result.rows[0]);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const searchStudents = async (req, res, next) => {
+    try {
+        const q = (req.query.q || '').trim();
+        if (q.length < 2) return handleResponse(res, 200, "Search results", []);
+
+        const { role, id: userId } = req.user;
+        let deptFilter = '';
+        const values = [`%${q}%`, `%${q}%`];
+        let paramIndex = 3;
+
+        if (role === 'SPC') {
+            const r = await pool.query(`SELECT department FROM student_profiles WHERE user_id = $1`, [userId]);
+            const dept = r.rows[0]?.department;
+            if (!dept) return handleResponse(res, 200, "Search results", []);
+            deptFilter = `AND sp.department = $${paramIndex}`;
+            values.push(dept);
+            paramIndex++;
+        } else if (role === 'FPC') {
+            const r = await pool.query(`SELECT department_branches FROM non_student_profiles WHERE user_id = $1`, [userId]);
+            const branches = r.rows[0]?.department_branches || [];
+            if (branches.length === 0) return handleResponse(res, 200, "Search results", []);
+            deptFilter = `AND sp.department = ANY($${paramIndex}::department_branch[])`;
+            values.push(branches);
+            paramIndex++;
+        }
+
+        const result = await pool.query(`
+            SELECT u.id, sp.full_name, sp.usn, sp.department, sp.pursuing_degree, u.email
+            FROM users u
+            LEFT JOIN student_profiles sp ON sp.user_id = u.id
+            WHERE u.role IN ('STUDENT', 'SPC')
+              AND (sp.full_name ILIKE $1 OR sp.usn ILIKE $2)
+              ${deptFilter}
+            ORDER BY sp.full_name ASC
+            LIMIT 8
+        `, values);
+
+        handleResponse(res, 200, "Search results", result.rows);
     } catch (err) {
         next(err);
     }

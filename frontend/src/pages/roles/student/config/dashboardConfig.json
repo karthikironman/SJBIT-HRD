@@ -187,27 +187,6 @@
             "fields": [{ "name": "document_url", "label": "College ID Card URL", "type": "url", "required": true, "description": "Upload a scan or photo of your current college ID card and paste the shareable link" }]
           }
         ]
-      },
-      {
-        "id": "Offers",
-        "label": "Offers",
-        "subTabOrientation": "vertical",
-        "dynamicSubTabs": {
-           "fetchListEndpoint": "/student/offers",
-           "createEndpoint": "/student/offers/new",
-           "template": {
-              "labelPrefix": "",
-              "fetchEndpoint": "/student/offers/:id",
-              "saveEndpoint": "/student/offers/:id",
-              "fields": [
-                 { "name": "company_name", "label": "Company Name", "type": "text", "required": true, "regex": "^[A-Za-z0-9 &.,()-]+$", "description": "Full legal name of the company (e.g. Infosys Ltd, Google LLC)" },
-                 { "name": "salary_lpa", "label": "Salary (LPA)", "type": "number", "required": true, "description": "Annual CTC in Lakhs Per Annum (e.g. 6.5)" },
-                 { "name": "offer_letter_url", "label": "Offer Letter Link", "type": "url", "required": true, "description": "Upload your offer letter and paste a shareable Google Drive / OneDrive link" },
-                 { "name": "is_accepted", "label": "Accepted By You?", "type": "select", "options": [{"title":"Yes","value":"true"},{"title":"No","value":"false"}], "required": true, "description": "Select Yes only if you have formally accepted this offer" }
-              ]
-           }
-        },
-        "subTabs": []
       }
     ]
   }

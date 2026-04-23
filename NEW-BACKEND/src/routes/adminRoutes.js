@@ -8,7 +8,8 @@ import {
     updateUserRole,
     createBulkFPCs,
     deleteUser,
-    updateFpcDepartments
+    updateFpcDepartments,
+    searchStudents
 } from "../controllers/adminController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -35,6 +36,7 @@ const requireAdminSuperUserFpc = (req, res, next) => {
     next();
 };
 
+adminRoutes.get("/search", authMiddleware, requireStaffOrAdmin, searchStudents);
 adminRoutes.get("/users", authMiddleware, requireAdminSuperUserFpc, getAllUsersAdmin);
 adminRoutes.get("/pending-approvals", authMiddleware, requireStaffOrAdmin, getPendingApprovals);
 adminRoutes.get("/student-data/:userId/:subtabKey", authMiddleware, requireStaffOrAdmin, getStudentSubtabData);

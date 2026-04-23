@@ -8,22 +8,15 @@ import dashboardConfig from './config/dashboardConfig.json';
 import Approvals from '../admin/components/Approvals';
 
 const StudentDashboard = ({ user, onLogout }) => {
-  const [dynamicOverrides, setDynamicOverrides] = useState({});
   const [contextData, setContextData] = useState({});
 
   const tabs = React.useMemo(() => {
-    let baseTabs = dashboardConfig.tabs.map(tab =>
-      dynamicOverrides[tab.id] ? { ...tab, subTabs: dynamicOverrides[tab.id] } : tab
-    );
+    const baseTabs = [...dashboardConfig.tabs];
     if (user.role === 'SPC') {
-      baseTabs.push({
-        id: 'Approvals',
-        label: 'Approvals',
-        isCustomComponent: true
-      });
+      baseTabs.push({ id: 'Approvals', label: 'Approvals', isCustomComponent: true });
     }
     return baseTabs;
-  }, [dynamicOverrides, user.role]);
+  }, [user.role]);
 
   const [activeTabId, setActiveTabId] = useState(tabs[0]?.id);
   const [activeSubTabId, setActiveSubTabId] = useState('');
@@ -33,41 +26,10 @@ const StudentDashboard = ({ user, onLogout }) => {
     return initial;
   });
 
-  // Fetch real statuses + dynamic tab lists on mount
   useEffect(() => {
-    const fetchStatuses = async () => {
-      try {
-        const res = await apiClient.get('/student/statuses');
-        if (res.data?.statuses) setSubTabStatuses(prev => ({ ...prev, ...res.data.statuses }));
-      } catch (err) {
-        console.error("Failed to load statuses", err);
-      }
-    };
-
-    const fetchDynamics = async () => {
-      const overrides = {};
-      for (const tab of dashboardConfig.tabs) {
-        if (!tab.dynamicSubTabs) continue;
-        try {
-          const res = await apiClient.get(tab.dynamicSubTabs.fetchListEndpoint);
-          if (res.data?.data) {
-            overrides[tab.id] = res.data.data.map((item, index) => ({
-              id: item.id,
-              label: `${tab.dynamicSubTabs.template.labelPrefix}${item.company_name || `Offer #${index + 1}`}`,
-              fetchEndpoint: tab.dynamicSubTabs.template.fetchEndpoint.replace(':id', item.id),
-              saveEndpoint: tab.dynamicSubTabs.template.saveEndpoint.replace(':id', item.id),
-              fields: tab.dynamicSubTabs.template.fields,
-            }));
-          }
-        } catch (e) {
-          console.error("Failed to load dynamic tabs for", tab.id);
-        }
-      }
-      if (Object.keys(overrides).length > 0) setDynamicOverrides(overrides);
-    };
-
-    fetchStatuses();
-    fetchDynamics();
+    apiClient.get('/student/statuses')
+      .then(res => { if (res.data?.statuses) setSubTabStatuses(prev => ({ ...prev, ...res.data.statuses })); })
+      .catch(err => console.error("Failed to load statuses", err));
   }, []);
 
   // Reset subtab when active main tab changes
@@ -97,30 +59,6 @@ const StudentDashboard = ({ user, onLogout }) => {
       }
     });
   }, [tabs]);
-
-  const handleAddNewOffer = async () => {
-    const activeTab = tabs.find(t => t.id === activeTabId);
-    if (!activeTab?.dynamicSubTabs) return;
-    try {
-      const res = await apiClient.post(activeTab.dynamicSubTabs.createEndpoint, {});
-      const newItem = res.data?.data;
-      if (!newItem) return;
-      const newSubTab = {
-        id: newItem.id,
-        label: `${activeTab.dynamicSubTabs.template.labelPrefix}${newItem.company_name || 'New Item'}`,
-        fetchEndpoint: activeTab.dynamicSubTabs.template.fetchEndpoint.replace(':id', newItem.id),
-        saveEndpoint: activeTab.dynamicSubTabs.template.saveEndpoint.replace(':id', newItem.id),
-        fields: activeTab.dynamicSubTabs.template.fields,
-      };
-      setDynamicOverrides(prev => ({
-        ...prev,
-        [activeTab.id]: [...(prev[activeTab.id] || []), newSubTab],
-      }));
-      setActiveSubTabId(newItem.id);
-    } catch (e) {
-      console.error("Failed to generate dynamic tab", e);
-    }
-  };
 
   const activeTab = tabs.find(t => t.id === activeTabId);
 
@@ -164,8 +102,6 @@ const StudentDashboard = ({ user, onLogout }) => {
                 onSubTabSelect={setActiveSubTabId}
                 subTabStatuses={subTabStatuses}
                 isVertical={isVertical}
-                hasDynamicSubTabs={!!activeTab?.dynamicSubTabs}
-                onAddNewOffer={handleAddNewOffer}
               />
 
               <div style={{

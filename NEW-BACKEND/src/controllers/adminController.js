@@ -389,7 +389,8 @@ export const searchStudents = async (req, res, next) => {
         }
 
         const result = await pool.query(`
-            SELECT u.id, sp.full_name, sp.usn, sp.department, sp.pursuing_degree, u.email
+            SELECT u.id, sp.full_name, sp.usn, sp.department, sp.pursuing_degree, u.email,
+                   u.sub_tab_statuses, u.sub_tab_remarks
             FROM users u
             LEFT JOIN student_profiles sp ON sp.user_id = u.id
             WHERE u.role IN ('STUDENT', 'SPC')

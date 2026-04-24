@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../api/apiClient';
+import { useAuth } from '../../context/AuthContext';
 
 const SUBTABS = [
   { id: 'core_info',      label: 'Core Info' },
@@ -22,6 +23,29 @@ const DOCUMENT_KEYS = [
   { id: 'passport_photo',  label: 'Passport Photo' },
   { id: 'college_id',      label: 'College ID' },
 ];
+
+const STAFF_ROLES = ['ADMIN', 'SUPER_USER', 'FPC', 'SPC'];
+
+const STATUS_META = {
+  INCOMPLETE: { color: '#6B7280', bg: '#F3F4F6', label: 'Incomplete' },
+  PENDING:    { color: '#D97706', bg: '#FEF3C7', label: 'Pending' },
+  APPROVED:   { color: '#059669', bg: '#D1FAE5', label: 'Verified' },
+  REJECTED:   { color: '#DC2626', bg: '#FEE2E2', label: 'Rejected' },
+};
+
+const StatusPill = ({ status }) => {
+  const meta = STATUS_META[status] || STATUS_META.INCOMPLETE;
+  return (
+    <span style={{
+      fontSize: '0.65rem', fontWeight: '600', letterSpacing: '0.04em',
+      color: meta.color, backgroundColor: meta.bg,
+      padding: '0.15rem 0.45rem', borderRadius: '999px',
+      textTransform: 'uppercase', whiteSpace: 'nowrap',
+    }}>
+      {meta.label}
+    </span>
+  );
+};
 
 const renderValue = (val) => {
   if (val === null || val === undefined || val === '') return <span style={{ color: '#9CA3AF' }}>—</span>;
@@ -61,49 +85,160 @@ const DataGrid = ({ data }) => {
   );
 };
 
-const DocumentsGrid = ({ docs }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-    {DOCUMENT_KEYS.map(({ id, label }) => {
-      const url = docs[id];
-      return (
-        <div key={id} style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0.6rem 0.875rem',
-          border: '1px solid #E5E7EB',
-          borderRadius: '0.5rem',
-          backgroundColor: url ? '#F0FDF4' : '#F9FAFB',
-        }}>
-          <span style={{ fontSize: '0.8rem', color: '#374151', fontWeight: '500' }}>{label}</span>
-          {url ? (
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: '0.75rem', fontWeight: '600',
-                color: '#2563EB', textDecoration: 'none',
-                backgroundColor: '#EFF6FF',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '0.25rem',
-                whiteSpace: 'nowrap',
-              }}
-            >
+const DocumentRow = ({ id, label, url, status, remark, isStaff, onReject }) => {
+  const [rejecting, setRejecting] = useState(false);
+  const [rejectRemark, setRejectRemark] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleConfirm = async () => {
+    if (!rejectRemark.trim()) { setError('Please enter a remark.'); return; }
+    setLoading(true);
+    setError(null);
+    try {
+      await onReject(id, rejectRemark.trim());
+      setRejecting(false);
+      setRejectRemark('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to reject.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const meta = STATUS_META[status || 'INCOMPLETE'];
+
+  return (
+    <div style={{
+      border: '1px solid #E5E7EB', borderRadius: '0.5rem',
+      overflow: 'hidden',
+      backgroundColor: url ? '#fff' : '#F9FAFB',
+    }}>
+      {/* Main row */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0.6rem 0.875rem', gap: '0.5rem',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+          <span style={{ fontSize: '0.8rem', color: '#374151', fontWeight: '500', flexShrink: 0 }}>{label}</span>
+          <StatusPill status={status || 'INCOMPLETE'} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+          {url && (
+            <a href={url} target="_blank" rel="noopener noreferrer" style={{
+              fontSize: '0.75rem', fontWeight: '600', color: '#2563EB',
+              textDecoration: 'none', backgroundColor: '#EFF6FF',
+              padding: '0.2rem 0.6rem', borderRadius: '0.25rem',
+            }}>
               View ⧉
             </a>
-          ) : (
-            <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>Not uploaded</span>
           )}
+          {isStaff && status === 'APPROVED' && !rejecting && (
+            <button onClick={() => setRejecting(true)} style={{
+              fontSize: '0.72rem', fontWeight: '600', color: '#DC2626',
+              backgroundColor: '#FEE2E2', border: '1px solid #FECACA',
+              padding: '0.2rem 0.55rem', borderRadius: '0.25rem', cursor: 'pointer',
+            }}>
+              Reject
+            </button>
+          )}
+          {!url && <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>Not uploaded</span>}
         </div>
-      );
-    })}
+      </div>
+
+      {/* Rejection remark display */}
+      {status === 'REJECTED' && remark && (
+        <div style={{ padding: '0.3rem 0.875rem 0.5rem', borderTop: '1px solid #FEE2E2', backgroundColor: '#FFF5F5' }}>
+          <span style={{ fontSize: '0.72rem', color: '#991B1B' }}>Remark: {remark}</span>
+        </div>
+      )}
+
+      {/* Inline reject form */}
+      {rejecting && (
+        <div style={{ padding: '0.6rem 0.875rem', borderTop: '1px solid #FECACA', backgroundColor: '#FFF5F5' }}>
+          <textarea
+            value={rejectRemark}
+            onChange={e => { setRejectRemark(e.target.value); setError(null); }}
+            placeholder="Enter rejection remark…"
+            rows={2}
+            autoFocus
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '0.4rem 0.5rem',
+              border: '1px solid #FCA5A5', borderRadius: '0.375rem',
+              fontSize: '0.78rem', resize: 'vertical',
+              outline: 'none', fontFamily: 'inherit',
+            }}
+          />
+          {error && <p style={{ fontSize: '0.72rem', color: '#DC2626', margin: '0.2rem 0 0' }}>{error}</p>}
+          <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.4rem' }}>
+            <button onClick={handleConfirm} disabled={loading} style={{
+              fontSize: '0.75rem', fontWeight: '600', color: '#fff',
+              backgroundColor: loading ? '#FCA5A5' : '#DC2626',
+              border: 'none', padding: '0.25rem 0.7rem',
+              borderRadius: '0.25rem', cursor: loading ? 'not-allowed' : 'pointer',
+            }}>
+              {loading ? 'Rejecting…' : 'Confirm'}
+            </button>
+            <button onClick={() => { setRejecting(false); setRejectRemark(''); setError(null); }} style={{
+              fontSize: '0.75rem', color: '#6B7280', backgroundColor: 'transparent',
+              border: '1px solid #D1D5DB', padding: '0.25rem 0.6rem',
+              borderRadius: '0.25rem', cursor: 'pointer',
+            }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const DocumentsGrid = ({ docs, statuses, remarks, isStaff, onDocReject }) => (
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+    {DOCUMENT_KEYS.map(({ id, label }) => (
+      <DocumentRow
+        key={id}
+        id={id}
+        label={label}
+        url={docs[id]}
+        status={statuses[id]}
+        remark={remarks[id]}
+        isStaff={isStaff}
+        onReject={onDocReject}
+      />
+    ))}
   </div>
 );
 
 const StudentProfileModal = ({ student, onClose }) => {
+  const { user } = useAuth();
+  const isStaff = STAFF_ROLES.includes(user?.role);
+
   const [activeTab, setActiveTab] = useState('core_info');
   const [tabCache, setTabCache] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [statuses, setStatuses] = useState(student.sub_tab_statuses || {});
+  const [remarks, setRemarks] = useState(student.sub_tab_remarks || {});
+
+  // Derive a single status for the documents tab from individual document keys
+  const docStatuses = DOCUMENT_KEYS.map(({ id }) => statuses[id]).filter(Boolean);
+  const documentsStatus = docStatuses.includes('REJECTED') ? 'REJECTED'
+    : docStatuses.includes('PENDING')  ? 'PENDING'
+    : docStatuses.length > 0 && docStatuses.every(s => s === 'APPROVED') ? 'APPROVED'
+    : docStatuses.length > 0 ? 'PENDING'
+    : 'INCOMPLETE';
+
+  const getTabStatus = (tabId) =>
+    tabId === 'documents' ? documentsStatus : (statuses[tabId] || 'INCOMPLETE');
+
+  // Reject state
+  const [rejectingTab, setRejectingTab] = useState(null);
+  const [rejectRemark, setRejectRemark] = useState('');
+  const [rejectLoading, setRejectLoading] = useState(false);
+  const [rejectError, setRejectError] = useState(null);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -137,7 +272,35 @@ const StudentProfileModal = ({ student, onClose }) => {
       .finally(() => setLoading(false));
   }, [activeTab, student.id, tabCache]);
 
+  const handleReject = async () => {
+    if (!rejectRemark.trim()) { setRejectError('Please enter a remark.'); return; }
+    setRejectLoading(true);
+    setRejectError(null);
+    try {
+      await apiClient.post(`/admin/reject/${student.id}/${rejectingTab}`, { remarks: rejectRemark.trim() });
+      setStatuses(prev => ({ ...prev, [rejectingTab]: 'REJECTED' }));
+      setRemarks(prev => ({ ...prev, [rejectingTab]: rejectRemark.trim() }));
+      setRejectingTab(null);
+      setRejectRemark('');
+    } catch (err) {
+      setRejectError(err.response?.data?.message || 'Failed to reject. Try again.');
+    } finally {
+      setRejectLoading(false);
+    }
+  };
+
   const data = tabCache[activeTab];
+  const isDocumentsTab = activeTab === 'documents';
+  const activeStatus = isDocumentsTab ? null : getTabStatus(activeTab);
+  const activeRemark = remarks[activeTab];
+  const isApproved = activeStatus === 'APPROVED';
+  const isRejecting = rejectingTab === activeTab;
+
+  const handleDocReject = async (docId, remark) => {
+    await apiClient.post(`/admin/reject/${student.id}/${docId}`, { remarks: remark });
+    setStatuses(prev => ({ ...prev, [docId]: 'REJECTED' }));
+    setRemarks(prev => ({ ...prev, [docId]: remark }));
+  };
 
   return (
     <div
@@ -198,34 +361,147 @@ const StudentProfileModal = ({ student, onClose }) => {
           overflowX: 'auto',
           backgroundColor: '#F9FAFB',
         }}>
-          {SUBTABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.6rem 1rem',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === tab.id ? '2px solid #2563EB' : '2px solid transparent',
-                color: activeTab === tab.id ? '#2563EB' : '#6B7280',
-                fontWeight: activeTab === tab.id ? '600' : '400',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {SUBTABS.map(tab => {
+            const tabStatus = getTabStatus(tab.id);
+            const meta = STATUS_META[tabStatus];
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setRejectingTab(null); setRejectRemark(''); setRejectError(null); }}
+                style={{
+                  padding: '0.6rem 1rem',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeTab === tab.id ? '2px solid #2563EB' : '2px solid transparent',
+                  color: activeTab === tab.id ? '#2563EB' : '#6B7280',
+                  fontWeight: activeTab === tab.id ? '600' : '400',
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  whiteSpace: 'nowrap',
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                }}
+              >
+                {tab.label}
+                {meta && (
+                  <span style={{
+                    width: '7px', height: '7px', borderRadius: '50%',
+                    backgroundColor: meta.color, display: 'inline-block', flexShrink: 0,
+                  }} />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Body */}
         <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, minHeight: '200px' }}>
-          {loading && <p style={{ color: '#6B7280', textAlign: 'center', padding: '2rem 0' }}>Loading...</p>}
+
+          {/* Status bar — always shown */}
+          {activeStatus && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+              gap: '0.75rem',
+              padding: '0.65rem 0.875rem',
+              borderRadius: '0.5rem',
+              backgroundColor: STATUS_META[activeStatus]?.bg || '#F3F4F6',
+              marginBottom: '1.25rem',
+              flexWrap: 'wrap',
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <StatusPill status={activeStatus} />
+                {activeStatus === 'REJECTED' && activeRemark && (
+                  <span style={{ fontSize: '0.78rem', color: '#7F1D1D', marginTop: '0.15rem' }}>
+                    Remark: {activeRemark}
+                  </span>
+                )}
+              </div>
+
+              {/* Reject button — only for staff on APPROVED tabs */}
+              {isStaff && isApproved && !isRejecting && (
+                <button
+                  onClick={() => setRejectingTab(activeTab)}
+                  style={{
+                    fontSize: '0.75rem', fontWeight: '600',
+                    color: '#DC2626', backgroundColor: '#FEE2E2',
+                    border: '1px solid #FECACA',
+                    padding: '0.25rem 0.75rem', borderRadius: '0.375rem',
+                    cursor: 'pointer', whiteSpace: 'nowrap',
+                  }}
+                >
+                  Reject
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Inline reject form */}
+          {isRejecting && (
+            <div style={{
+              marginBottom: '1.25rem',
+              padding: '0.875rem 1rem',
+              border: '1px solid #FECACA',
+              borderRadius: '0.5rem',
+              backgroundColor: '#FFF5F5',
+            }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#991B1B', marginBottom: '0.5rem' }}>
+                Reason for rejection
+              </div>
+              <textarea
+                value={rejectRemark}
+                onChange={e => { setRejectRemark(e.target.value); setRejectError(null); }}
+                placeholder="Enter remarks for the student…"
+                rows={3}
+                autoFocus
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  padding: '0.5rem 0.625rem',
+                  border: '1px solid #FCA5A5', borderRadius: '0.375rem',
+                  fontSize: '0.8rem', resize: 'vertical',
+                  outline: 'none', fontFamily: 'inherit',
+                }}
+              />
+              {rejectError && (
+                <p style={{ fontSize: '0.75rem', color: '#DC2626', margin: '0.25rem 0 0' }}>{rejectError}</p>
+              )}
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.625rem' }}>
+                <button
+                  onClick={handleReject}
+                  disabled={rejectLoading}
+                  style={{
+                    fontSize: '0.78rem', fontWeight: '600',
+                    color: '#fff', backgroundColor: rejectLoading ? '#FCA5A5' : '#DC2626',
+                    border: 'none', padding: '0.35rem 0.875rem',
+                    borderRadius: '0.375rem', cursor: rejectLoading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {rejectLoading ? 'Rejecting…' : 'Confirm Reject'}
+                </button>
+                <button
+                  onClick={() => { setRejectingTab(null); setRejectRemark(''); setRejectError(null); }}
+                  disabled={rejectLoading}
+                  style={{
+                    fontSize: '0.78rem', color: '#6B7280', backgroundColor: 'transparent',
+                    border: '1px solid #D1D5DB', padding: '0.35rem 0.75rem',
+                    borderRadius: '0.375rem', cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {loading && <p style={{ color: '#6B7280', textAlign: 'center', padding: '2rem 0' }}>Loading…</p>}
           {error && <p style={{ color: '#EF4444', textAlign: 'center' }}>{error}</p>}
           {!loading && !error && (
             activeTab === 'documents'
-              ? <DocumentsGrid docs={data || {}} />
+              ? <DocumentsGrid
+                  docs={data || {}}
+                  statuses={statuses}
+                  remarks={remarks}
+                  isStaff={isStaff}
+                  onDocReject={handleDocReject}
+                />
               : <DataGrid data={data} />
           )}
         </div>

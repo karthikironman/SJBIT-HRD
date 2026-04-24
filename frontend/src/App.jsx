@@ -1,19 +1,21 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import GuestRoute from './components/routing/GuestRoute';
 
 function App() {
-  return ( 
+  return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
-      
+
       {/* Guest Routes: accessible only if NOT logged in */}
       <Route element={<GuestRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
 
       {/* Protected Routes: accessible only if logged in */}

@@ -98,6 +98,22 @@ body {
   background-color: var(--primary-hover);
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
 .auth-links {
   margin-top: 1.5rem;
   text-align: center;
@@ -123,6 +139,26 @@ body {
   font-size: 0.875rem;
   margin-bottom: 1rem;
   border: 1px solid #FECACA;
+}
+
+.success-message {
+  background-color: #F0FDF4;
+  color: #16A34A;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  border: 1px solid #BBF7D0;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
 }
 
 /* Dashboard UI */

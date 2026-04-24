@@ -9,24 +9,75 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
+const HARDCODED_OTP = '123456';
+const OTP_EXPIRY_MINUTES = 10;
+
 export const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    
-    // Check if user already exists
-    const userExist = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-    if (userExist.rows.length > 0) {
+
+    const verifiedUser = await pool.query(
+      "SELECT id FROM users WHERE email = $1 AND email_verified = true",
+      [email]
+    );
+    if (verifiedUser.rows.length > 0) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await pool.query(
-      "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, 'STUDENT') RETURNING id, email, role, created_at",
+    await pool.query(
+      `INSERT INTO users (email, password_hash, role, email_verified)
+       VALUES ($1, $2, 'STUDENT', false)
+       ON CONFLICT (email) DO UPDATE SET password_hash = $2, updated_at = CURRENT_TIMESTAMP`,
       [email, hashedPassword]
     );
 
-    res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+    await pool.query(
+      `INSERT INTO email_otps (email, purpose, otp, expires_at)
+       VALUES ($1, 'registration', $2, $3)
+       ON CONFLICT (email, purpose) DO UPDATE SET otp = $2, expires_at = $3, created_at = CURRENT_TIMESTAMP`,
+      [email, HARDCODED_OTP, expiresAt]
+    );
+
+    res.status(200).json({ message: "OTP sent to your email. Please verify to complete registration." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    const otpResult = await pool.query(
+      "SELECT * FROM email_otps WHERE email = $1 AND purpose = 'registration'",
+      [email]
+    );
+
+    if (otpResult.rows.length === 0) {
+      return res.status(400).json({ message: "No OTP found for this email. Please register again." });
+    }
+
+    const record = otpResult.rows[0];
+
+    if (new Date() > new Date(record.expires_at)) {
+      await pool.query("DELETE FROM email_otps WHERE email = $1 AND purpose = 'registration'", [email]);
+      return res.status(400).json({ message: "OTP has expired. Please register again." });
+    }
+
+    if (record.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP. Please try again." });
+    }
+
+    await pool.query(
+      "UPDATE users SET email_verified = true, updated_at = CURRENT_TIMESTAMP WHERE email = $1",
+      [email]
+    );
+    await pool.query("DELETE FROM email_otps WHERE email = $1 AND purpose = 'registration'", [email]);
+
+    res.status(200).json({ message: "Email verified successfully. You can now log in." });
   } catch (error) {
     next(error);
   }
@@ -43,10 +94,8 @@ export const login = async (req, res, next) => {
 
     const user = userResult.rows[0];
 
-    // Check if account is active
-    if (!user.is_active && user.role !== 'ADMIN' && user.role !== 'SUPER_USER') {
-        // As per typical systems, maybe we let them login but prompt verification?
-        // Let's just allow login for now, we have email_verified field to restrict access to specific routes later.
+    if (!user.email_verified) {
+      return res.status(403).json({ message: "Email not verified. Please complete OTP verification first." });
     }
 
     const validPassword = await bcrypt.compare(password, user.password_hash);
@@ -132,6 +181,70 @@ export const refreshToken = async (req, res, next) => {
       await pool.query("DELETE FROM refresh_tokens WHERE token = $1", [refreshToken]);
       return res.status(403).json({ message: "Refresh token expired or invalid" });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const userResult = await pool.query(
+      "SELECT id FROM users WHERE email = $1 AND email_verified = true",
+      [email]
+    );
+    if (userResult.rows.length === 0) {
+      // Return generic message to avoid email enumeration
+      return res.status(200).json({ message: "If that email is registered, an OTP has been sent." });
+    }
+
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+    await pool.query(
+      `INSERT INTO email_otps (email, purpose, otp, expires_at)
+       VALUES ($1, 'password_reset', $2, $3)
+       ON CONFLICT (email, purpose) DO UPDATE SET otp = $2, expires_at = $3, created_at = CURRENT_TIMESTAMP`,
+      [email, HARDCODED_OTP, expiresAt]
+    );
+
+    res.status(200).json({ message: "If that email is registered, an OTP has been sent." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const otpResult = await pool.query(
+      "SELECT * FROM email_otps WHERE email = $1 AND purpose = 'password_reset'",
+      [email]
+    );
+
+    if (otpResult.rows.length === 0) {
+      return res.status(400).json({ message: "No OTP found. Please request a new one." });
+    }
+
+    const record = otpResult.rows[0];
+
+    if (new Date() > new Date(record.expires_at)) {
+      await pool.query("DELETE FROM email_otps WHERE email = $1 AND purpose = 'password_reset'", [email]);
+      return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+    }
+
+    if (record.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP. Please try again." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query(
+      "UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE email = $2",
+      [hashedPassword, email]
+    );
+    await pool.query("DELETE FROM email_otps WHERE email = $1 AND purpose = 'password_reset'", [email]);
+
+    res.status(200).json({ message: "Password reset successfully. You can now log in." });
   } catch (error) {
     next(error);
   }

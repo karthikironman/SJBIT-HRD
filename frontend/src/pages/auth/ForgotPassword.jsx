@@ -2,41 +2,48 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '../../api/apiClient';
 
-const Register = () => {
-  const [step, setStep] = useState('register'); // 'register' | 'verify'
+const ForgotPassword = () => {
+  const [step, setStep] = useState('email'); // 'email' | 'reset'
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleRequestOtp = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/register', { email, password });
+      const res = await apiClient.post('/auth/forgot-password', { email });
       setMessage(res.data.message);
-      setStep('verify');
+      setStep('reset');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Try again.');
+      setError(err.response?.data?.message || 'Something went wrong. Try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     setError(null);
+    if (newPassword !== confirmPassword) {
+      return setError('Passwords do not match.');
+    }
+    if (newPassword.length < 6) {
+      return setError('Password must be at least 6 characters.');
+    }
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/verify-otp', { email, otp });
+      const res = await apiClient.post('/auth/reset-password', { email, otp, newPassword });
       setMessage(res.data.message);
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Verification failed. Try again.');
+      setError(err.response?.data?.message || 'Reset failed. Try again.');
     } finally {
       setLoading(false);
     }
@@ -46,7 +53,7 @@ const Register = () => {
     setError(null);
     setLoading(true);
     try {
-      const res = await apiClient.post('/auth/register', { email, password });
+      const res = await apiClient.post('/auth/forgot-password', { email });
       setMessage(res.data.message);
       setOtp('');
     } catch (err) {
@@ -59,19 +66,19 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-header">
-        <h1>{step === 'register' ? 'Create Account' : 'Verify Email'}</h1>
+        <h1>{step === 'email' ? 'Forgot Password' : 'Reset Password'}</h1>
         <p>
-          {step === 'register'
-            ? `Join the ${import.meta.env.VITE_BRAND_NAME || 'Institution'} portal`
-            : `Enter the OTP sent to ${email}`}
+          {step === 'email'
+            ? 'Enter your email to receive an OTP'
+            : `Enter the OTP sent to ${email} and your new password`}
         </p>
       </div>
 
       {error && <div className="error-message">{error}</div>}
       {message && !error && <div className="success-message">{message}</div>}
 
-      {step === 'register' ? (
-        <form onSubmit={handleRegister}>
+      {step === 'email' ? (
+        <form onSubmit={handleRequestOtp}>
           <div className="form-group">
             <label>Email Address</label>
             <input
@@ -80,26 +87,16 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={`example@${import.meta.env.VITE_BRAND_DOMAIN || 'example.edu'}`}
               required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password (min 6 chars)"
-              required
+              autoFocus
             />
           </div>
 
           <button type="submit" className="btn" disabled={loading}>
-            {loading ? 'Sending OTP...' : 'Register'}
+            {loading ? 'Sending OTP...' : 'Send OTP'}
           </button>
         </form>
       ) : (
-        <form onSubmit={handleVerifyOtp}>
+        <form onSubmit={handleResetPassword}>
           <div className="form-group">
             <label>OTP</label>
             <input
@@ -113,8 +110,30 @@ const Register = () => {
             />
           </div>
 
+          <div className="form-group">
+            <label>New Password</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New password (min 6 chars)"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Confirm New Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              required
+            />
+          </div>
+
           <button type="submit" className="btn" disabled={loading}>
-            {loading ? 'Verifying...' : 'Verify OTP'}
+            {loading ? 'Resetting...' : 'Reset Password'}
           </button>
 
           <button
@@ -130,15 +149,15 @@ const Register = () => {
       )}
 
       <div className="auth-links">
-        {step === 'register' ? (
-          <p>Already have an account? <Link to="/login">Sign in</Link></p>
+        {step === 'email' ? (
+          <p>Remember your password? <Link to="/login">Sign in</Link></p>
         ) : (
           <p>
             Wrong email?{' '}
             <button
               type="button"
               className="link-btn"
-              onClick={() => { setStep('register'); setError(null); setMessage(null); setOtp(''); }}
+              onClick={() => { setStep('email'); setError(null); setMessage(null); setOtp(''); }}
             >
               Go back
             </button>
@@ -149,4 +168,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default ForgotPassword;

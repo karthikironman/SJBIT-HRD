@@ -168,6 +168,19 @@ const createUserTable = async () => {
     );
   `;
 
+  const CREATE_EMAIL_OTPS_TABLE = `
+    CREATE TABLE IF NOT EXISTS email_otps (
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        purpose VARCHAR(50) NOT NULL DEFAULT 'registration',
+        otp VARCHAR(10) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (email, purpose)
+    );
+  `;
+
+
   try {
     console.log("Setting up database if not existing...");
     await pool.query(CREATE_ENUM);
@@ -178,6 +191,7 @@ const createUserTable = async () => {
     await pool.query(CREATE_ACADEMICS_TABLE);
     await pool.query(CREATE_DOCUMENTS_TABLE);
     await pool.query(CREATE_OFFERS_TABLE);
+    await pool.query(CREATE_EMAIL_OTPS_TABLE);
 
     // Seed default admin and super_user accounts
     const adminPass = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';

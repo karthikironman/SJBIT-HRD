@@ -85,15 +85,22 @@ const DataGrid = ({ data }) => {
   );
 };
 
-const DocumentRow = ({ id, label, url, status, remark, isStaff, onReject }) => {
+const DocumentRow = ({ id, label, url, status, remark, isStaff, onApprove, onReject }) => {
   const [rejecting, setRejecting] = useState(false);
   const [rejectRemark, setRejectRemark] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleApprove = async () => {
+    setApproveLoading(true);
+    try { await onApprove(id); } catch (err) { /* backend enforces */ }
+    finally { setApproveLoading(false); }
+  };
 
   const handleConfirm = async () => {
     if (!rejectRemark.trim()) { setError('Please enter a remark.'); return; }
-    setLoading(true);
+    setRejectLoading(true);
     setError(null);
     try {
       await onReject(id, rejectRemark.trim());
@@ -102,11 +109,12 @@ const DocumentRow = ({ id, label, url, status, remark, isStaff, onReject }) => {
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to reject.');
     } finally {
-      setLoading(false);
+      setRejectLoading(false);
     }
   };
 
-  const meta = STATUS_META[status || 'INCOMPLETE'];
+  const isPending  = status === 'PENDING';
+  const isApproved = status === 'APPROVED';
 
   return (
     <div style={{
@@ -133,14 +141,27 @@ const DocumentRow = ({ id, label, url, status, remark, isStaff, onReject }) => {
               View ⧉
             </a>
           )}
-          {isStaff && status === 'APPROVED' && !rejecting && (
-            <button onClick={() => setRejecting(true)} style={{
-              fontSize: '0.72rem', fontWeight: '600', color: '#DC2626',
-              backgroundColor: '#FEE2E2', border: '1px solid #FECACA',
-              padding: '0.2rem 0.55rem', borderRadius: '0.25rem', cursor: 'pointer',
-            }}>
-              Reject
-            </button>
+          {isStaff && (isPending || isApproved) && !rejecting && (
+            <>
+              {isPending && (
+                <button onClick={handleApprove} disabled={approveLoading} style={{
+                  fontSize: '0.72rem', fontWeight: '600', color: '#059669',
+                  backgroundColor: '#D1FAE5', border: '1px solid #6EE7B7',
+                  padding: '0.2rem 0.55rem', borderRadius: '0.25rem',
+                  cursor: approveLoading ? 'not-allowed' : 'pointer',
+                  opacity: approveLoading ? 0.6 : 1,
+                }}>
+                  {approveLoading ? '…' : 'Approve'}
+                </button>
+              )}
+              <button onClick={() => setRejecting(true)} style={{
+                fontSize: '0.72rem', fontWeight: '600', color: '#DC2626',
+                backgroundColor: '#FEE2E2', border: '1px solid #FECACA',
+                padding: '0.2rem 0.55rem', borderRadius: '0.25rem', cursor: 'pointer',
+              }}>
+                Reject
+              </button>
+            </>
           )}
           {!url && <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>Not uploaded</span>}
         </div>
@@ -194,7 +215,7 @@ const DocumentRow = ({ id, label, url, status, remark, isStaff, onReject }) => {
   );
 };
 
-const DocumentsGrid = ({ docs, statuses, remarks, isStaff, onDocReject }) => (
+const DocumentsGrid = ({ docs, statuses, remarks, isStaff, onDocApprove, onDocReject }) => (
   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
     {DOCUMENT_KEYS.map(({ id, label }) => (
       <DocumentRow
@@ -205,6 +226,7 @@ const DocumentsGrid = ({ docs, statuses, remarks, isStaff, onDocReject }) => (
         status={statuses[id]}
         remark={remarks[id]}
         isStaff={isStaff}
+        onApprove={onDocApprove}
         onReject={onDocReject}
       />
     ))}
@@ -233,6 +255,9 @@ const StudentProfileModal = ({ student, onClose }) => {
 
   const getTabStatus = (tabId) =>
     tabId === 'documents' ? documentsStatus : (statuses[tabId] || 'INCOMPLETE');
+
+  // Approve state
+  const [approveLoading, setApproveLoading] = useState(false);
 
   // Reject state
   const [rejectingTab, setRejectingTab] = useState(null);
@@ -272,6 +297,18 @@ const StudentProfileModal = ({ student, onClose }) => {
       .finally(() => setLoading(false));
   }, [activeTab, student.id, tabCache]);
 
+  const handleApprove = async () => {
+    setApproveLoading(true);
+    try {
+      await apiClient.post(`/admin/approve/${student.id}/${activeTab}`);
+      setStatuses(prev => ({ ...prev, [activeTab]: 'APPROVED' }));
+    } catch (err) {
+      // silently fail — backend will respond with an error which the user can retry
+    } finally {
+      setApproveLoading(false);
+    }
+  };
+
   const handleReject = async () => {
     if (!rejectRemark.trim()) { setRejectError('Please enter a remark.'); return; }
     setRejectLoading(true);
@@ -293,8 +330,14 @@ const StudentProfileModal = ({ student, onClose }) => {
   const isDocumentsTab = activeTab === 'documents';
   const activeStatus = isDocumentsTab ? null : getTabStatus(activeTab);
   const activeRemark = remarks[activeTab];
+  const isPending  = activeStatus === 'PENDING';
   const isApproved = activeStatus === 'APPROVED';
   const isRejecting = rejectingTab === activeTab;
+
+  const handleDocApprove = async (docId) => {
+    await apiClient.post(`/admin/approve/${student.id}/${docId}`);
+    setStatuses(prev => ({ ...prev, [docId]: 'APPROVED' }));
+  };
 
   const handleDocReject = async (docId, remark) => {
     await apiClient.post(`/admin/reject/${student.id}/${docId}`, { remarks: remark });
@@ -416,20 +459,38 @@ const StudentProfileModal = ({ student, onClose }) => {
                 )}
               </div>
 
-              {/* Reject button — only for staff on APPROVED tabs */}
-              {isStaff && isApproved && !isRejecting && (
-                <button
-                  onClick={() => setRejectingTab(activeTab)}
-                  style={{
-                    fontSize: '0.75rem', fontWeight: '600',
-                    color: '#DC2626', backgroundColor: '#FEE2E2',
-                    border: '1px solid #FECACA',
-                    padding: '0.25rem 0.75rem', borderRadius: '0.375rem',
-                    cursor: 'pointer', whiteSpace: 'nowrap',
-                  }}
-                >
-                  Reject
-                </button>
+              {/* Action buttons — staff only, not while reject form is open */}
+              {isStaff && !isRejecting && (isPending || isApproved) && (
+                <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                  {isPending && (
+                    <button
+                      onClick={handleApprove}
+                      disabled={approveLoading}
+                      style={{
+                        fontSize: '0.75rem', fontWeight: '600',
+                        color: '#059669', backgroundColor: '#D1FAE5',
+                        border: '1px solid #6EE7B7',
+                        padding: '0.25rem 0.75rem', borderRadius: '0.375rem',
+                        cursor: approveLoading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap',
+                        opacity: approveLoading ? 0.6 : 1,
+                      }}
+                    >
+                      {approveLoading ? 'Approving…' : 'Approve'}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setRejectingTab(activeTab)}
+                    style={{
+                      fontSize: '0.75rem', fontWeight: '600',
+                      color: '#DC2626', backgroundColor: '#FEE2E2',
+                      border: '1px solid #FECACA',
+                      padding: '0.25rem 0.75rem', borderRadius: '0.375rem',
+                      cursor: 'pointer', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Reject
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -500,6 +561,7 @@ const StudentProfileModal = ({ student, onClose }) => {
                   statuses={statuses}
                   remarks={remarks}
                   isStaff={isStaff}
+                  onDocApprove={handleDocApprove}
                   onDocReject={handleDocReject}
                 />
               : <DataGrid data={data} />

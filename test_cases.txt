@@ -1,0 +1,109 @@
+================================================================================
+                        MANUAL TEST CASES & EXECUTION STEPS
+================================================================================
+Project: SJBIT Portal
+Date: 2026-04-25
+================================================================================
+
+MODULE 1: USER AUTHENTICATION
+
+Test Case 1.1: Student Registration
+- Objective: Verify that a new student can register successfully.
+- Steps:
+  1. Navigate to the Registration page.
+  2. Enter valid details (Name, USN, Email, Password).
+  3. Click "Register".
+  4. Verify the OTP sent to the email.
+  5. Enter the OTP in the verification field and submit.
+- Expected Result: Registration is successful, and the user is redirected to the login page with a success message.
+
+Test Case 1.2: User Login
+- Objective: Verify login with valid credentials.
+- Steps:
+  1. Navigate to the Login page.
+  2. Enter a registered Email and Password.
+  3. Click "Login".
+- Expected Result: User is successfully authenticated, JWT token is stored, and user is redirected to their respective dashboard (Admin/Student/SPC/FPC).
+
+Test Case 1.3: User Logout
+- Objective: Verify secure logout functionality.
+- Steps:
+  1. Login to the application.
+  2. Click on the "Logout" button in the navigation or profile menu.
+- Expected Result: User is logged out, session/tokens are cleared, and redirected to the Login page.
+
+--------------------------------------------------------------------------------
+
+MODULE 2: ADMIN DASHBOARD
+
+Test Case 2.1: View All Users (Pagination & List)
+- Objective: Verify the admin can view all registered users with pagination.
+- Steps:
+  1. Login as Admin or Super User.
+  2. Navigate to the "All Users" or "Manage Users" tab.
+  3. Scroll/click through pagination controls.
+- Expected Result: List of users is displayed correctly, and pagination controls work without errors, loading the correct number of users per page.
+
+Test Case 2.2: Toggle User Roles
+- Objective: Verify admin can toggle roles between Student and SPC.
+- Steps:
+  1. Login as Admin.
+  2. Navigate to the users list.
+  3. Find a user with the role "Student".
+  4. Use the toggle switch to change the role to "SPC".
+- Expected Result: The user's role is updated in the database, UI reflects the change, and a success notification is shown.
+
+Test Case 2.3: Bulk FPC Creation
+- Objective: Verify admin can bulk upload FPC accounts.
+- Steps:
+  1. Login as Admin.
+  2. Navigate to the bulk upload section for FPCs.
+  3. Upload a valid structured file (e.g., CSV/JSON) containing FPC details and department metadata.
+  4. Submit the form.
+- Expected Result: FPC accounts are created successfully, associated with correct departments, and listed in the users table.
+
+--------------------------------------------------------------------------------
+
+MODULE 3: STUDENT DASHBOARD
+
+Test Case 3.1: Personal Information Form Validation
+- Objective: Verify frontend form validation errors for personal info.
+- Steps:
+  1. Login as a Student.
+  2. Navigate to the Personal tab.
+  3. Leave required fields blank or enter invalid data (e.g., invalid phone number).
+  4. Click "Save".
+- Expected Result: Specific, actionable error messages are displayed next to the invalid fields (not just generic "saving failed").
+
+Test Case 3.2: Dynamic Job Offers Tracking
+- Objective: Verify students can add multiple job offers.
+- Steps:
+  1. Login as a Student.
+  2. Navigate to the Job Offers tab.
+  3. Click "Add Offer".
+  4. Fill in the offer details and submit.
+  5. Repeat to add another offer.
+- Expected Result: Multiple vertically-stacked sub-tabs/cards are created for each offer, and their verification statuses are tracked independently.
+
+--------------------------------------------------------------------------------
+
+MODULE 4: APPROVALS SYSTEM
+
+Test Case 4.1: Paginated Approvals Tab
+- Objective: Verify the approvals list is paginated.
+- Steps:
+  1. Login as an SPC or FPC.
+  2. Navigate to the Approvals tab.
+  3. Check the pagination controls at the bottom of the list.
+- Expected Result: Approvals are loaded based on the configured pagination limits, and navigation between pages works correctly.
+
+Test Case 4.2: Data Isolation for Approvals
+- Objective: Verify users only see approvals relevant to their role/department.
+- Steps:
+  1. Login as an FPC for Department A.
+  2. Navigate to Approvals.
+- Expected Result: The FPC only sees approval requests from students in Department A.
+
+================================================================================
+END OF TEST CASES
+================================================================================
